@@ -1,6 +1,5 @@
 import { vehicles, vehicleMakes } from '@/lib/data';
 import { VehicleList } from '@/components/vehicles/vehicle-list';
-import { Separator } from '@/components/ui/separator';
 
 export default function VehiclesPage() {
   return (
@@ -11,7 +10,6 @@ export default function VehiclesPage() {
             Trouvez le véhicule parfait parmi notre collection exclusive.
           </p>
         </div>
-        <Separator className="my-8" />
       <VehicleList allVehicles={vehicles} makes={vehicleMakes} />
     </div>
   );
