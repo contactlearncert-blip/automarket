@@ -18,6 +18,11 @@ export function MobileNav() {
       <nav className="flex-grow mt-6">
         <ul className="flex flex-col gap-4">
           <li>
+            <Link href="/" className="text-lg font-medium hover:text-primary">
+              Accueil
+            </Link>
+          </li>
+          <li>
             <Link href="/vehicles" className="text-lg font-medium hover:text-primary">
               Catalogue
             </Link>
