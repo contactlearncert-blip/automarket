@@ -29,7 +29,7 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
   }, [allVehicles, searchTerm, filters]);
 
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
       <aside className="lg:col-span-1 sticky top-28">
         <VehicleSearch
           makes={makes}
@@ -53,6 +53,6 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

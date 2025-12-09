@@ -12,9 +12,7 @@ export default function VehiclesPage() {
           </p>
         </div>
         <Separator className="my-8" />
-      <div className="space-y-12">
-        <VehicleList allVehicles={vehicles} makes={vehicleMakes} />
-      </div>
+      <VehicleList allVehicles={vehicles} makes={vehicleMakes} />
     </div>
   );
 }
