@@ -23,7 +23,7 @@ const formSchema = z.object({
   fuelType: z.enum(['Essence', 'Diesel', 'Électrique', 'Hybride']),
   description: z.string().min(10, "La description doit comporter au moins 10 caractères."),
   features: z.array(z.object({ value: z.string().min(1, "La caractéristique ne peut pas être vide.") })).optional(),
-  images: z.array(z.any()).optional(), // Accepte un tableau de fichiers
+  images: z.array(z.any()).min(3, "Vous devez télécharger au moins 3 photos."),
 });
 
 export function SellVehicleForm() {
@@ -192,7 +192,7 @@ export function SellVehicleForm() {
 
                      <div>
                         <FormLabel>Photos</FormLabel>
-                         <FormDescription className="mb-2">Téléchargez au moins une photo de votre véhicule.</FormDescription>
+                         <FormDescription className="mb-2">Téléchargez au moins trois photos de votre véhicule.</FormDescription>
                         <FormField control={form.control} name="images" render={({ field }) => (
                             <FormItem>
                                 <FormControl>
