@@ -30,7 +30,6 @@ export function MobileNav() {
         </ul>
       </nav>
       <div className="mt-auto flex flex-col gap-4 border-t pt-4">
-        <Button>Connexion</Button>
         <Button variant="ghost" className="flex items-center justify-center gap-2">
             <Moon className="h-5 w-5" />
             <span>Changer de thème</span>
