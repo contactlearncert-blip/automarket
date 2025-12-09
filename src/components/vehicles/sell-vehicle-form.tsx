@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, Send, Trash2, Upload } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { supabase } from '@/lib/supabaseClient';
 
 const formSchema = z.object({
   make: z.string().min(2, "La marque est requise."),
@@ -23,7 +24,7 @@ const formSchema = z.object({
   fuelType: z.enum(['Essence', 'Diesel', 'Électrique', 'Hybride']),
   description: z.string().min(10, "La description doit comporter au moins 10 caractères."),
   features: z.array(z.object({ value: z.string().min(1, "La caractéristique ne peut pas être vide.") })).optional(),
-  images: z.array(z.any()).min(3, "Vous devez télécharger au moins 3 photos."),
+  images: z.custom<FileList>().refine(files => files.length >= 3, "Vous devez télécharger au moins 3 photos."),
 });
 
 export function SellVehicleForm() {
@@ -50,16 +51,62 @@ export function SellVehicleForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Simuler une soumission de formulaire
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-        title: "Annonce Soumise !",
-        description: "Votre véhicule a été mis en vente avec succès.",
-        className: 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600'
-    });
-    form.reset();
+    try {
+      const imageUrls: string[] = [];
+      const imageFiles = Array.from(values.images);
+
+      for (const file of imageFiles) {
+        const filePath = `public/${Date.now()}-${file.name}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from('vehicle-images')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('vehicle-images')
+          .getPublicUrl(data.path);
+        
+        imageUrls.push(publicUrl);
+      }
+
+      const vehicleData = {
+        make: values.make,
+        model: values.model,
+        year: values.year,
+        price: values.price,
+        mileage: values.mileage,
+        engine: values.engine,
+        transmission: values.transmission,
+        fuel_type: values.fuelType,
+        description: values.description,
+        features: values.features?.map(f => f.value).filter(Boolean),
+        image_urls: imageUrls,
+      };
+
+      const { error: insertError } = await supabase.from('vehicles').insert([vehicleData]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      toast({
+          title: "Annonce Soumise !",
+          description: "Votre véhicule a été mis en vente avec succès.",
+          className: 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600'
+      });
+      form.reset();
+
+    } catch (error: any) {
+        console.error("Error submitting vehicle:", error);
+        toast({
+            variant: "destructive",
+            title: "Une erreur est survenue",
+            description: error.message || "Impossible de soumettre l'annonce.",
+        });
+    }
   }
 
   return (
@@ -193,7 +240,7 @@ export function SellVehicleForm() {
                      <div>
                         <FormLabel>Photos</FormLabel>
                          <FormDescription className="mb-2">Téléchargez au moins trois photos de votre véhicule.</FormDescription>
-                        <FormField control={form.control} name="images" render={({ field }) => (
+                        <FormField control={form.control} name="images" render={({ field: { onChange, ...fieldProps } }) => (
                             <FormItem>
                                 <FormControl>
                                     <div className="flex items-center justify-center w-full">
@@ -201,9 +248,18 @@ export function SellVehicleForm() {
                                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                 <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                                                 <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Cliquez pour télécharger</span> ou glissez-déposez</p>
-                                                <p className="text-xs text-muted-foreground">PNG, JPG (MAX. 800x400px)</p>
+                                                <p className="text-xs text-muted-foreground">PNG, JPG</p>
                                             </div>
-                                            <Input id="dropzone-file" type="file" className="hidden" multiple onChange={(e) => field.onChange(e.target.files)} />
+                                            <Input 
+                                              id="dropzone-file" 
+                                              type="file" 
+                                              className="hidden" 
+                                              multiple
+                                              {...fieldProps}
+                                              onChange={(event) => {
+                                                  onChange(event.target.files);
+                                              }} 
+                                            />
                                         </label>
                                     </div>
                                 </FormControl>
