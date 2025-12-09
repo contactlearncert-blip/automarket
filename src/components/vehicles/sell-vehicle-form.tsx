@@ -14,6 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { supabase } from '@/lib/supabaseClient';
 
 const formSchema = z.object({
+  membershipCode: z.string().refine(code => code === 'ibrahim', {
+    message: "Code d'adhésion invalide.",
+  }),
   make: z.string().min(2, "La marque est requise."),
   model: z.string().min(1, "Le modèle est requis."),
   year: z.coerce.number().min(1900, "Année invalide.").max(new Date().getFullYear() + 1, "Année invalide."),
@@ -32,6 +35,7 @@ export function SellVehicleForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      membershipCode: "",
       make: "",
       model: "",
       year: new Date().getFullYear(),
@@ -118,6 +122,13 @@ export function SellVehicleForm() {
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField control={form.control} name="membershipCode" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Code d'adhésion</FormLabel>
+                            <FormControl><Input placeholder="Entrez le code" {...field} type="password" /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
                     <div className="grid md:grid-cols-2 gap-6">
                         <FormField control={form.control} name="make" render={({ field }) => (
                             <FormItem>
