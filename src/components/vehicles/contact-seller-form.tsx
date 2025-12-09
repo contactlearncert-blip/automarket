@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Send } from 'lucide-react';
-import { handleContactSeller } from '@/lib/actions';
 import Link from 'next/link';
 
 const formSchema = z.object({
@@ -41,27 +40,17 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await handleContactSeller(values);
-    if (result.success) {
-      toast({
-        title: "Message Envoyé !",
-        description: "Le vendeur vous répondra sous peu.",
-        className: 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600'
-      });
-      form.reset({
-          name: "",
-          email: "",
-          message: `Je suis intéressé par le ${vehicleName}. Pouvez-vous me donner plus de détails ?`,
-          vehicle: vehicleName,
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Oups ! Quelque chose s'est mal passé.",
-        description: "Un problème est survenu lors de l'envoi de votre message. Veuillez réessayer.",
-      });
-    }
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    const to = "zangatecno@gmail.com";
+    const subject = `Demande d'information pour : ${values.vehicle}`;
+    const body = `Nom: ${values.name}%0D%0AEmail: ${values.email}%0D%0A%0D%0AMessage:%0D%0A${encodeURIComponent(values.message)}`;
+    
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+
+    toast({
+        title: "Client de messagerie ouvert",
+        description: "Veuillez envoyer l'e-mail depuis votre application de messagerie.",
+    });
   }
 
   const whatsappMessage = `Je suis intéressé par le ${vehicleName}. Pouvez-vous me donner plus de détails ?`;
@@ -119,14 +108,8 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
                         )}
                     />
                     <div className="space-y-2">
-                        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                            {form.formState.isSubmitting ? (
-                                "Envoi en cours..."
-                            ) : (
-                                <>
-                                    <Send className="mr-2 h-4 w-4" /> Envoyer le Message
-                                </>
-                            )}
+                        <Button type="submit" className="w-full">
+                            <Mail className="mr-2 h-4 w-4" /> Envoyer par Email
                         </Button>
                         <Button asChild className="w-full bg-[#25D366] hover:bg-[#1DAE58] text-white" variant="secondary">
                             <Link href={whatsappUrl} target="_blank">
