@@ -1,5 +1,6 @@
-import { Car } from 'lucide-react';
+import { Car, Moon } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export function Header() {
   return (
@@ -9,11 +10,23 @@ export function Header() {
           href="/"
           className="flex items-center gap-3 font-bold text-2xl text-primary"
         >
-          <div className="bg-accent p-2 rounded-lg">
-            <Car className="h-6 w-6 text-primary" />
+          <div className="bg-primary p-2 rounded-lg">
+            <Car className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="font-headline">AutoHub</span>
+          <span className="font-headline">AutoMarket</span>
         </Link>
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <Link href="/" className="hover:text-primary transition-colors">Accueil</Link>
+          <Link href="/vehicles" className="hover:text-primary transition-colors">Catalogue</Link>
+          <Link href="#" className="hover:text-primary transition-colors">Vendre</Link>
+        </nav>
+        <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon">
+                <Moon className="h-5 w-5" />
+                <span className="sr-only">Toggle theme</span>
+            </Button>
+            <Button>Connexion</Button>
+        </div>
       </div>
     </header>
   );

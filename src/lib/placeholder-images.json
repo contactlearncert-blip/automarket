@@ -1,6 +1,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-showroom",
+      "description": "A futuristic car showroom with luxury vehicles on display",
+      "imageUrl": "https://images.unsplash.com/photo-1617808922453-ab027ac3c035?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmdXR1cmlzdGljJTIwY2FyJTIwc2hvd3Jvb218ZW58MHx8fHwxNzY1MzA1NjM4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "futuristic showroom"
+    },
+    {
       "id": "sedan-1",
       "description": "A modern silver sedan on a city street",
       "imageUrl": "https://images.unsplash.com/photo-1722088353797-ddfe6e2faf34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzZWRhbiUyMGNhcnxlbnwwfHx8fDE3NjUyNDQ3MTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
