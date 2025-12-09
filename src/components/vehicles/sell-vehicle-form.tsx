@@ -216,7 +216,7 @@ export function SellVehicleForm() {
                             render={({ field }) => (
                                 <FormItem className="flex items-center gap-2 mb-2">
                                 <FormControl>
-                                    <Input {...field} placeholder={`Caractéristique #${index + 1}`} />
+                                    <Input {...field} value={field.value || ''} placeholder={`Caractéristique #${index + 1}`} />
                                 </FormControl>
                                 <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
                                     <Trash2 className="h-4 w-4" />
