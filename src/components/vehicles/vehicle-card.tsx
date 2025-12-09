@@ -29,7 +29,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint={image.imageHint}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
                <Badge variant="secondary" className="absolute top-3 right-3">{vehicle.year}</Badge>
             </div>

@@ -30,7 +30,7 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
 
   return (
     <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-      <aside className="lg:col-span-1 sticky top-8">
+      <aside className="lg:col-span-1 sticky top-28">
         <VehicleSearch
           makes={makes}
           onSearchChange={setSearchTerm}
@@ -41,7 +41,7 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
       
       <div className="lg:col-span-3">
         {filteredVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {filteredVehicles.map(vehicle => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
