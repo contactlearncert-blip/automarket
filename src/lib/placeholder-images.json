@@ -3,8 +3,8 @@
     {
       "id": "hero-showroom",
       "description": "A modern car dealership showroom with bright lights and new cars",
-      "imageUrl": "https://images.unsplash.com/photo-1554224324-a4b5f54d3795?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYXIlMjBzaG93cm9vbXxlbnwwfHx8fDE3NjUzMTI1MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "car showroom"
+      "imageUrl": "https://images.unsplash.com/photo-1561240776-d9c35e3f7202?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dm9pdHVyZSUyMHN0b3JlfGVufDB8fDB8fHww",
+      "imageHint": "car store"
     },
     {
       "id": "sedan-1",
