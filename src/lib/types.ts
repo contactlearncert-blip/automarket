@@ -6,8 +6,8 @@ export type Vehicle = {
   price: number;
   mileage: number;
   engine: string;
-  transmission: 'Automatic' | 'Manual';
-  fuelType: 'Gasoline' | 'Diesel' | 'Electric' | 'Hybrid';
+  transmission: 'Automatique' | 'Manuelle';
+  fuelType: 'Essence' | 'Diesel' | 'Électrique' | 'Hybride';
   description: string;
   features: string[];
   images: string[];

@@ -13,13 +13,13 @@ export async function handleContactSeller(values: z.infer<typeof contactSchema>)
     const validatedFields = contactSchema.safeParse(values);
 
     if (!validatedFields.success) {
-        return { success: false, error: 'Invalid fields.' };
+        return { success: false, error: 'Champs invalides.' };
     }
 
-    // In a real app, you would send an email, save to a DB, etc.
-    console.log("New seller contact message:", validatedFields.data);
+    // Dans une vraie application, vous enverriez un e-mail, enregistreriez dans une base de données, etc.
+    console.log("Nouveau message de contact vendeur :", validatedFields.data);
     
-    // Simulate network delay
+    // Simuler un délai réseau
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     return { success: true };

@@ -44,11 +44,11 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         <p className="text-sm text-muted-foreground">{vehicle.transmission} • {vehicle.fuelType}</p>
         
         <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
-            <div className="flex items-center gap-1.5" title="Mileage">
+            <div className="flex items-center gap-1.5" title="Kilométrage">
                 <Gauge className="h-3.5 w-3.5" />
                 <span>{vehicle.mileage.toLocaleString('fr-FR')} km</span>
             </div>
-            <div className="flex items-center gap-1.5" title="Fuel Type">
+            <div className="flex items-center gap-1.5" title="Carburant">
                 <Fuel className="h-3.5 w-3.5" />
                 <span>{vehicle.fuelType}</span>
             </div>

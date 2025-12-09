@@ -33,12 +33,12 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
     }
     
     const specs: Spec[] = [
-        { icon: DollarSign, label: "Price", value: `$${vehicle.price.toLocaleString()}` },
-        { icon: Calendar, label: "Year", value: vehicle.year },
-        { icon: Gauge, label: "Mileage", value: `${vehicle.mileage.toLocaleString()} mi` },
-        { icon: Fuel, label: "Fuel Type", value: vehicle.fuelType },
+        { icon: DollarSign, label: "Prix", value: `${vehicle.price.toLocaleString('fr-FR')} €` },
+        { icon: Calendar, label: "Année", value: vehicle.year },
+        { icon: Gauge, label: "Kilométrage", value: `${vehicle.mileage.toLocaleString('fr-FR')} km` },
+        { icon: Fuel, label: "Carburant", value: vehicle.fuelType },
         { icon: Cog, label: "Transmission", value: vehicle.transmission },
-        { icon: Wrench, label: "Engine", value: vehicle.engine },
+        { icon: Wrench, label: "Moteur", value: vehicle.engine },
     ];
 
     return (
@@ -80,7 +80,7 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                         </div>
 
                         <div>
-                            <h3 className="text-xl font-bold mb-3">Features</h3>
+                            <h3 className="text-xl font-bold mb-3">Caractéristiques</h3>
                             <div className="flex flex-wrap gap-2">
                                 {vehicle.features.map(feature => (
                                     <Badge key={feature} variant="outline" className="text-sm">{feature}</Badge>
@@ -92,7 +92,7 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                 <div className="lg:col-span-2 space-y-8">
                     <Card className="shadow-lg">
                         <CardHeader>
-                            <CardTitle>Specifications</CardTitle>
+                            <CardTitle>Spécifications</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <Table>

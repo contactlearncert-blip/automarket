@@ -13,9 +13,9 @@ import { Mail, Send } from 'lucide-react';
 import { handleContactSeller } from '@/lib/actions';
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  email: z.string().email("Invalid email address."),
-  message: z.string().min(10, "Message must be at least 10 characters."),
+  name: z.string().min(2, "Le nom doit comporter au moins 2 caractères."),
+  email: z.string().email("Adresse e-mail invalide."),
+  message: z.string().min(10, "Le message doit comporter au moins 10 caractères."),
   vehicle: z.string(),
 });
 
@@ -30,7 +30,7 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
     defaultValues: {
       name: "",
       email: "",
-      message: `I'm interested in the ${vehicleName}. Can you provide more details?`,
+      message: `Je suis intéressé par le ${vehicleName}. Pouvez-vous me donner plus de détails ?`,
       vehicle: vehicleName,
     },
   });
@@ -39,21 +39,21 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
     const result = await handleContactSeller(values);
     if (result.success) {
       toast({
-        title: "Message Sent!",
-        description: "The seller will get back to you shortly.",
+        title: "Message Envoyé !",
+        description: "Le vendeur vous répondra sous peu.",
         className: 'bg-green-100 dark:bg-green-900 border-green-400 dark:border-green-600'
       });
       form.reset({
           name: "",
           email: "",
-          message: `I'm interested in the ${vehicleName}. Can you provide more details?`,
+          message: `Je suis intéressé par le ${vehicleName}. Pouvez-vous me donner plus de détails ?`,
           vehicle: vehicleName,
       });
     } else {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem sending your message. Please try again.",
+        title: "Oups ! Quelque chose s'est mal passé.",
+        description: "Un problème est survenu lors de l'envoi de votre message. Veuillez réessayer.",
       });
     }
   }
@@ -61,8 +61,8 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
   return (
     <Card className="shadow-lg sticky top-8">
         <CardHeader>
-            <CardTitle>Contact Seller</CardTitle>
-            <CardDescription>Send a message to inquire about this car.</CardDescription>
+            <CardTitle>Contacter le Vendeur</CardTitle>
+            <CardDescription>Envoyez un message pour vous renseigner sur cette voiture.</CardDescription>
         </CardHeader>
         <CardContent>
             <Form {...form}>
@@ -75,9 +75,9 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
                         name="name"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Your Name</FormLabel>
+                                <FormLabel>Votre Nom</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="John Doe" {...field} />
+                                    <Input placeholder="Jean Dupont" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -88,9 +88,9 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Your Email</FormLabel>
+                                <FormLabel>Votre Email</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="you@example.com" type="email" {...field} />
+                                    <Input placeholder="vous@exemple.com" type="email" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -111,10 +111,10 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
                     />
                     <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting ? (
-                            "Sending..."
+                            "Envoi en cours..."
                         ) : (
                             <>
-                                <Send className="mr-2 h-4 w-4" /> Send Message
+                                <Send className="mr-2 h-4 w-4" /> Envoyer le Message
                             </>
                         )}
                     </Button>
