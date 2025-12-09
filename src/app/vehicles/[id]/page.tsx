@@ -1,0 +1,118 @@
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { vehicles } from '@/lib/data';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { ContactSellerForm } from '@/components/vehicles/contact-seller-form';
+import { Cog, Fuel, Gauge, Calendar, DollarSign, Wrench } from 'lucide-react';
+import type { Vehicle } from '@/lib/types';
+
+async function getVehicle(id: string): Promise<Vehicle | undefined> {
+    // In a real app, this would be a database call.
+    return vehicles.find(v => v.id === id);
+}
+
+function getPlaceholderImage(id: string) {
+    return PlaceHolderImages.find(p => p.id === id) || PlaceHolderImages[0];
+}
+
+type Spec = {
+    icon: React.ElementType;
+    label: string;
+    value: string | number;
+}
+
+export default async function VehicleDetailPage({ params }: { params: { id: string } }) {
+    const vehicle = await getVehicle(params.id);
+
+    if (!vehicle) {
+        notFound();
+    }
+    
+    const specs: Spec[] = [
+        { icon: DollarSign, label: "Price", value: `$${vehicle.price.toLocaleString()}` },
+        { icon: Calendar, label: "Year", value: vehicle.year },
+        { icon: Gauge, label: "Mileage", value: `${vehicle.mileage.toLocaleString()} mi` },
+        { icon: Fuel, label: "Fuel Type", value: vehicle.fuelType },
+        { icon: Cog, label: "Transmission", value: vehicle.transmission },
+        { icon: Wrench, label: "Engine", value: vehicle.engine },
+    ];
+
+    return (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid lg:grid-cols-5 gap-12">
+                <div className="lg:col-span-3">
+                    <Card className="overflow-hidden shadow-lg">
+                        <Carousel className="w-full">
+                            <CarouselContent>
+                                {vehicle.images.map(imageId => {
+                                    const image = getPlaceholderImage(imageId);
+                                    return (
+                                        <CarouselItem key={imageId}>
+                                            <div className="aspect-[16/10] relative">
+                                                <Image
+                                                    src={image.imageUrl}
+                                                    alt={image.description}
+                                                    fill
+                                                    className="object-cover"
+                                                    data-ai-hint={image.imageHint}
+                                                    priority
+                                                />
+                                            </div>
+                                        </CarouselItem>
+                                    );
+                                })}
+                            </CarouselContent>
+                            <CarouselPrevious className="left-4" />
+                            <CarouselNext className="right-4" />
+                        </Carousel>
+                    </Card>
+
+                    <div className="mt-8 space-y-6">
+                        <h1 className="text-4xl font-headline font-bold">{vehicle.make} {vehicle.model}</h1>
+                        
+                        <div>
+                            <h3 className="text-xl font-bold mb-3">Description</h3>
+                            <p className="text-muted-foreground">{vehicle.description}</p>
+                        </div>
+
+                        <div>
+                            <h3 className="text-xl font-bold mb-3">Features</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {vehicle.features.map(feature => (
+                                    <Badge key={feature} variant="outline" className="text-sm">{feature}</Badge>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="lg:col-span-2 space-y-8">
+                    <Card className="shadow-lg">
+                        <CardHeader>
+                            <CardTitle>Specifications</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableBody>
+                                    {specs.map(spec => (
+                                        <TableRow key={spec.label}>
+                                            <TableCell className="font-medium flex items-center gap-2 p-3">
+                                                <spec.icon className="h-4 w-4 text-muted-foreground" />
+                                                {spec.label}
+                                            </TableCell>
+                                            <TableCell className="text-right p-3">{spec.value}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                    <ContactSellerForm vehicleName={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} />
+                </div>
+            </div>
+        </div>
+    );
+}
