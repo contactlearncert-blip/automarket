@@ -14,9 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { supabase } from '@/lib/supabaseClient';
 
 const formSchema = z.object({
-  membershipCode: z.string().refine(code => code === 'ibrahim', {
-    message: "Code d'adhésion invalide.",
-  }),
   make: z.string().min(2, "La marque est requise."),
   model: z.string().min(1, "Le modèle est requis."),
   year: z.coerce.number().min(1900, "Année invalide.").max(new Date().getFullYear() + 1, "Année invalide."),
@@ -27,7 +24,7 @@ const formSchema = z.object({
   fuelType: z.enum(['Essence', 'Diesel', 'Électrique', 'Hybride']),
   description: z.string().min(10, "La description doit comporter au moins 10 caractères."),
   features: z.array(z.object({ value: z.string().min(1, "La caractéristique ne peut pas être vide.") })).optional(),
-  images: z.custom<FileList>().refine(files => files.length >= 3, "Vous devez télécharger au moins 3 photos."),
+  images: z.custom<FileList>().refine(files => files && files.length >= 3, "Vous devez télécharger au moins 3 photos."),
 });
 
 export function SellVehicleForm() {
@@ -35,7 +32,6 @@ export function SellVehicleForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      membershipCode: "",
       make: "",
       model: "",
       year: new Date().getFullYear(),
@@ -122,13 +118,6 @@ export function SellVehicleForm() {
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField control={form.control} name="membershipCode" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Code mot de passe</FormLabel>
-                            <FormControl><Input placeholder="Entrez le mot de passe" {...field} type="password" /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
                     <div className="grid md:grid-cols-2 gap-6">
                         <FormField control={form.control} name="make" render={({ field }) => (
                             <FormItem>
@@ -259,7 +248,7 @@ export function SellVehicleForm() {
                                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                 <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
                                                 <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Cliquez pour télécharger</span> ou glissez-déposez</p>
-                                                <p className="text-xs text-muted-foreground">PNG, JPG</p>
+                                                <p className="text-xs text-muted-foreground">PNG, JPG (MIN. 3)</p>
                                             </div>
                                             <Input 
                                               id="dropzone-file" 
