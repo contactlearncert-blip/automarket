@@ -23,7 +23,7 @@ export function MobileNav() {
             </Link>
           </li>
           <li>
-            <Link href="#" className="text-lg font-medium hover:text-primary">
+            <Link href="/sell" className="text-lg font-medium hover:text-primary">
               Vendre
             </Link>
           </li>

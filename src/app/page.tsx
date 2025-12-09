@@ -40,7 +40,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild size="lg" variant="secondary" className="bg-white/10 hover:bg-white/20 text-white">
-              <Link href="#">Vendre votre Véhicule</Link>
+              <Link href="/sell">Vendre votre Véhicule</Link>
             </Button>
           </div>
         </div>

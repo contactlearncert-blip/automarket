@@ -18,6 +18,12 @@ export function Header() {
           <span className="font-headline">AutoMarket</span>
         </Link>
         <div className="hidden items-center gap-4 md:flex">
+          <Button variant="ghost" asChild>
+            <Link href="/vehicles">Catalogue</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/sell">Vendre</Link>
+          </Button>
           <Button variant="ghost" size="icon">
             <Moon className="h-5 w-5" />
             <span className="sr-only">Changer de thème</span>
