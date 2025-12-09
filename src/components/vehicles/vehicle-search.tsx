@@ -8,7 +8,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Label } from "../ui/label";
 
-type Filters = { make: string; price: number[] };
+type Filters = { make: string; };
 
 type VehicleSearchProps = {
   makes: string[];
@@ -49,19 +49,6 @@ export function VehicleSearch({ makes, onSearchChange, onFilterChange, filters }
                     ))}
                 </SelectContent>
             </Select>
-        </div>
-        
-        <div className="space-y-2">
-            <div className="flex justify-between items-baseline">
-                <Label>Prix Max</Label>
-                <span className="text-sm font-semibold text-primary">{filters.price[1].toLocaleString('fr-FR')} €</span>
-            </div>
-            <Slider
-                value={[filters.price[1]]}
-                max={200000}
-                step={1000}
-                onValueChange={(value) => onFilterChange(prev => ({...prev, price: [0, value[0]]}))}
-            />
         </div>
       </CardContent>
     </Card>

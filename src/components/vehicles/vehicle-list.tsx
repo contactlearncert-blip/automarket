@@ -12,9 +12,8 @@ type VehicleListProps = {
 
 export function VehicleList({ allVehicles, makes }: VehicleListProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<{ make: string; price: number[] }>({
+  const [filters, setFilters] = useState<{ make: string; }>({
     make: 'all',
-    price: [0, 200000],
   });
 
   const filteredVehicles = useMemo(() => {
@@ -25,9 +24,7 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
       
       const makeMatch = filters.make === 'all' || vehicle.make === filters.make;
       
-      const priceMatch = vehicle.price >= filters.price[0] && vehicle.price <= filters.price[1];
-
-      return searchMatch && makeMatch && priceMatch;
+      return searchMatch && makeMatch;
     });
   }, [allVehicles, searchTerm, filters]);
 
