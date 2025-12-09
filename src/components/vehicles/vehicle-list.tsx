@@ -29,8 +29,8 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
   }, [allVehicles, searchTerm, filters]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-      <aside className="lg:col-span-1 sticky top-28">
+    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-8 items-start">
+      <aside className="sticky top-28">
         <VehicleSearch
           makes={makes}
           onSearchChange={setSearchTerm}
@@ -39,17 +39,17 @@ export function VehicleList({ allVehicles, makes }: VehicleListProps) {
         />
       </aside>
       
-      <div className="lg:col-span-3">
+      <div>
         {filteredVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredVehicles.map(vehicle => (
               <VehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
         ) : (
-          <div className="mt-16 text-center">
-              <h3 className="text-xl font-semibold">Aucun véhicule trouvé</h3>
-              <p className="text-muted-foreground mt-2">Essayez d'ajuster votre recherche ou vos filtres pour trouver ce que vous cherchez.</p>
+          <div className="flex flex-col items-center justify-center text-center py-20">
+              <h3 className="text-2xl font-semibold">Aucun véhicule trouvé</h3>
+              <p className="text-muted-foreground mt-2 max-w-md">Essayez d'ajuster votre recherche ou vos filtres pour trouver ce que vous cherchez.</p>
           </div>
         )}
       </div>
