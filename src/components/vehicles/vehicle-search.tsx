@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search } from 'lucide-react';
 import type { Dispatch, SetStateAction } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 import { Label } from "../ui/label";
 
 type Filters = { make: string; };
@@ -20,10 +20,7 @@ export function VehicleSearch({ makes, onSearchChange, onFilterChange, filters }
 
   return (
     <Card>
-        <CardHeader>
-            <CardTitle>Filtres</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-6">
             <div className="space-y-2">
                 <Label htmlFor="search">Rechercher</Label>
                 <div className="relative">
