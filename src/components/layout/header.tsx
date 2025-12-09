@@ -1,7 +1,7 @@
 import { Car, Moon, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { MobileNav } from './mobile-nav';
 
 export function Header() {
@@ -38,6 +38,12 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right">
+                    <SheetHeader className="sr-only">
+                      <SheetTitle>Menu</SheetTitle>
+                      <SheetDescription>
+                        Navigation principale du site mobile.
+                      </SheetDescription>
+                    </SheetHeader>
                     <MobileNav />
                 </SheetContent>
             </Sheet>
