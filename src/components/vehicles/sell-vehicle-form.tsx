@@ -124,8 +124,8 @@ export function SellVehicleForm() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField control={form.control} name="membershipCode" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Code d'adhésion</FormLabel>
-                            <FormControl><Input placeholder="Entrez le code" {...field} type="password" /></FormControl>
+                            <FormLabel>Code mot de passe</FormLabel>
+                            <FormControl><Input placeholder="Entrez le mot de passe" {...field} type="password" /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
