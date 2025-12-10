@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, Send, Trash2, Upload } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { supabase } from '@/lib/supabaseClient';
+import type { TablesInsert } from '@/lib/database.types';
 
 const formSchema = z.object({
   make: z.string().min(2, "La marque est requise."),
@@ -35,8 +36,8 @@ export function SellVehicleForm() {
       make: "",
       model: "",
       year: new Date().getFullYear(),
-      price: 0,
-      mileage: 0,
+      price: undefined,
+      mileage: undefined,
       engine: "",
       transmission: 'Automatique',
       fuelType: 'Essence',
@@ -52,27 +53,22 @@ export function SellVehicleForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const imageUrls: string[] = [];
       const imageFiles = Array.from(values.images);
-
-      for (const file of imageFiles) {
+      const uploadPromises = imageFiles.map(file => {
         const filePath = `public/${Date.now()}-${file.name}`;
-        const { data, error: uploadError } = await supabase.storage
-          .from('vehicle-images')
-          .upload(filePath, file);
+        return supabase.storage.from('vehicle-images').upload(filePath, file);
+      });
 
-        if (uploadError) {
-          throw uploadError;
-        }
+      const uploadResults = await Promise.all(uploadPromises);
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('vehicle-images')
-          .getPublicUrl(data.path);
-        
+      const imageUrls: string[] = [];
+      for (const result of uploadResults) {
+        if (result.error) throw result.error;
+        const { data: { publicUrl } } = supabase.storage.from('vehicle-images').getPublicUrl(result.data.path);
         imageUrls.push(publicUrl);
       }
 
-      const vehicleData = {
+      const vehicleData: TablesInsert<'vehicles'> = {
         make: values.make,
         model: values.model,
         year: values.year,
@@ -240,7 +236,7 @@ export function SellVehicleForm() {
                      <div>
                         <FormLabel>Photos</FormLabel>
                          <FormDescription className="mb-2">Téléchargez au moins trois photos de votre véhicule.</FormDescription>
-                        <FormField control={form.control} name="images" render={({ field: { onChange, ...fieldProps } }) => (
+                        <FormField control={form.control} name="images" render={({ field: { onChange, value, ...fieldProps } }) => (
                             <FormItem>
                                 <FormControl>
                                     <div className="flex items-center justify-center w-full">
@@ -283,5 +279,3 @@ export function SellVehicleForm() {
     </Card>
   );
 }
-
-    
