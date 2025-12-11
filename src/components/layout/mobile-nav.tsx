@@ -27,6 +27,11 @@ export function MobileNav() {
               Catalogue
             </Link>
           </li>
+          <li>
+            <Link href="/about" className="text-lg font-medium hover:text-primary">
+              À Propos
+            </Link>
+          </li>
         </ul>
       </nav>
       <div className="mt-auto flex flex-col gap-4 border-t pt-4">
