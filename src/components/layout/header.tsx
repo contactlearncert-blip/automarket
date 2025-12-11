@@ -15,7 +15,7 @@ export function Header() {
           <div className="bg-primary p-2 rounded-lg">
             <Car className="h-6 w-6 text-primary-foreground" />
           </div>
-          <span className="font-headline">AutoMarket</span>
+          <span className="font-headline">ZangaAuto</span>
         </Link>
         <div className="hidden items-center gap-4 md:flex">
           <Button variant="ghost" asChild>
