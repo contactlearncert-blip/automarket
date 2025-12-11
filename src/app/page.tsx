@@ -1,47 +1,56 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, AlertTriangle } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card';
-import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/lib/supabaseClient';
 import type { Vehicle } from '@/lib/types';
 
 
 async function getFeaturedVehicles() {
-  const { data, error } = await supabase
-    .from('vehicles')
-    .select('*')
-    .limit(3)
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .limit(3)
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching featured vehicles:', error);
-    return [];
+    if (error) {
+      console.error('Error fetching featured vehicles:', error.message);
+      // Return an error object instead of an empty array
+      return { error: `Erreur Supabase: ${error.message}` };
+    }
+    
+    // Map Supabase data to Vehicle type
+    const vehicles: Vehicle[] = data.map(v => ({
+      id: v.id.toString(),
+      make: v.make || '',
+      model: v.model || '',
+      year: v.year || 0,
+      price: v.price || 0,
+      mileage: v.mileage || 0,
+      engine: v.engine || '',
+      transmission: v.transmission as Vehicle['transmission'] || 'Automatique',
+      fuelType: v.fuel_type as Vehicle['fuelType'] || 'Essence',
+      description: v.description || '',
+      features: v.features || [],
+      images: v.image_urls || [],
+    }));
+    return { vehicles };
+  } catch (e: any) {
+    console.error('An unexpected error occurred:', e.message);
+    return { error: `Une erreur inattendue est survenue: ${e.message}` };
   }
-  
-  // Map Supabase data to Vehicle type
-  return data.map(v => ({
-    id: v.id.toString(),
-    make: v.make || '',
-    model: v.model || '',
-    year: v.year || 0,
-    price: v.price || 0,
-    mileage: v.mileage || 0,
-    engine: v.engine || '',
-    transmission: v.transmission as Vehicle['transmission'] || 'Automatique',
-    fuelType: v.fuel_type as Vehicle['fuelType'] || 'Essence',
-    description: v.description || '',
-    features: v.features || [],
-    images: v.image_urls || [],
-  }));
 }
 
 
 export default async function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-showroom');
-  const featuredVehicles = await getFeaturedVehicles();
+  const result = await getFeaturedVehicles();
+  const featuredVehicles = result.vehicles;
+  const fetchError = result.error;
 
   return (
     <>
@@ -87,11 +96,26 @@ export default async function Home() {
               </Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredVehicles.map(vehicle => (
-              <FeaturedVehicleCard key={vehicle.id} vehicle={vehicle} />
-            ))}
-          </div>
+          {fetchError ? (
+             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
+                <AlertTriangle className="h-10 w-10 text-destructive" />
+                <h3 className="mt-4 text-xl font-semibold text-destructive">Impossible de charger les véhicules</h3>
+                <p className="mt-2 text-sm text-destructive/80">
+                  {fetchError}
+                </p>
+                 <p className="mt-2 text-xs text-muted-foreground">
+                  Vérifiez vos variables d'environnement Supabase dans Vercel ou votre fichier .env.local.
+                </p>
+            </div>
+          ) : featuredVehicles && featuredVehicles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredVehicles.map(vehicle => (
+                  <FeaturedVehicleCard key={vehicle.id} vehicle={vehicle} />
+                ))}
+              </div>
+          ) : (
+             <p className="text-center text-muted-foreground">Aucun véhicule en vedette pour le moment.</p>
+          )}
         </div>
       </section>
     </>
