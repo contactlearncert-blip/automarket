@@ -52,7 +52,7 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
     }
     
     const specs: Spec[] = [
-        { icon: DollarSign, label: "Prix", value: `${vehicle.price.toLocaleString('fr-FR')} €` },
+        { icon: DollarSign, label: "Prix", value: `${vehicle.price.toLocaleString('fr-FR')} FCFA` },
         { icon: Calendar, label: "Année", value: vehicle.year },
         { icon: Gauge, label: "Kilométrage", value: `${vehicle.mileage.toLocaleString('fr-FR')} km` },
         { icon: Fuel, label: "Carburant", value: vehicle.fuelType },

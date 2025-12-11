@@ -50,7 +50,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
 
       </CardContent>
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
-         <p className="text-xl font-bold text-primary">{vehicle.price.toLocaleString('fr-FR')} €</p>
+         <p className="text-xl font-bold text-primary">{vehicle.price.toLocaleString('fr-FR')} FCFA</p>
         <Button asChild variant="outline" size="sm">
           <Link href={`/vehicles/${vehicle.id}`}>
             Voir Détails
