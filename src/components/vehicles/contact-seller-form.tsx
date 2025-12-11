@@ -65,7 +65,7 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const to = 'zangatecno@gmail.com';
+    const to = 'bramatraore910@gmail.com';
     const subject = `Demande d'information pour : ${values.vehicle}`;
     const body = `Nom: ${
       values.name
@@ -82,7 +82,7 @@ export function ContactSellerForm({ vehicleName }: ContactSellerFormProps) {
   }
 
   const whatsappMessage = `Je suis intéressé par le ${vehicleName}. Pouvez-vous me donner plus de détails ?`;
-  const whatsappUrl = `https://wa.me/212716639486?text=${encodeURIComponent(
+  const whatsappUrl = `https://wa.me/22675093804?text=${encodeURIComponent(
     whatsappMessage
   )}`;
 
