@@ -4,19 +4,14 @@ import type { Vehicle } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Cog, Fuel, Gauge } from 'lucide-react';
 
 type VehicleCardProps = {
   vehicle: Vehicle;
 };
 
-function getPlaceholderImage(id: string) {
-    return PlaceHolderImages.find(p => p.id === id) || PlaceHolderImages[0];
-}
-
 export function VehicleCard({ vehicle }: VehicleCardProps) {
-  const image = getPlaceholderImage(vehicle.images[0]);
+  const imageUrl = vehicle.images?.[0] || 'https://placehold.co/600x400/EEE/31343C?text=Photo+Indisponible';
   
   return (
     <Card className="flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-xl group">
@@ -24,11 +19,10 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         <Link href={`/vehicles/${vehicle.id}`} className="block">
             <div className="relative aspect-[4/3] w-full">
               <Image
-                src={image.imageUrl}
-                alt={image.description}
+                src={imageUrl}
+                alt={`${vehicle.make} ${vehicle.model}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
-                data-ai-hint={image.imageHint}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
                <Badge variant="secondary" className="absolute top-3 right-3">{vehicle.year}</Badge>

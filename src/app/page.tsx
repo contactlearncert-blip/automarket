@@ -3,13 +3,45 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { vehicles } from '@/lib/data';
 import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/lib/supabaseClient';
+import type { Vehicle } from '@/lib/types';
 
-export default function Home() {
+
+async function getFeaturedVehicles() {
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select('*')
+    .limit(3)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching featured vehicles:', error);
+    return [];
+  }
+  
+  // Map Supabase data to Vehicle type
+  return data.map(v => ({
+    id: v.id.toString(),
+    make: v.make || '',
+    model: v.model || '',
+    year: v.year || 0,
+    price: v.price || 0,
+    mileage: v.mileage || 0,
+    engine: v.engine || '',
+    transmission: v.transmission as Vehicle['transmission'] || 'Automatique',
+    fuelType: v.fuel_type as Vehicle['fuelType'] || 'Essence',
+    description: v.description || '',
+    features: v.features || [],
+    images: v.image_urls || [],
+  }));
+}
+
+
+export default async function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-showroom');
-  const featuredVehicles = vehicles.slice(0, 3);
+  const featuredVehicles = await getFeaturedVehicles();
 
   return (
     <>
@@ -38,9 +70,6 @@ export default function Home() {
               <Link href="/vehicles">
                 Parcourir le Stock <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary" className="bg-white/10 hover:bg-white/20 text-white">
-              <Link href="/sell">Vendre votre Véhicule</Link>
             </Button>
           </div>
         </div>

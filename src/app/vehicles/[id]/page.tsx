@@ -1,7 +1,5 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { vehicles } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Badge } from '@/components/ui/badge';
@@ -9,15 +7,36 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { ContactSellerForm } from '@/components/vehicles/contact-seller-form';
 import { Cog, Fuel, Gauge, Calendar, DollarSign, Wrench } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
+import { supabase } from '@/lib/supabaseClient';
 
 async function getVehicle(id: string): Promise<Vehicle | undefined> {
-    // In a real app, this would be a database call.
-    return vehicles.find(v => v.id === id);
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+        console.error('Error fetching vehicle:', error);
+        return undefined;
+    }
+
+    return {
+        id: data.id.toString(),
+        make: data.make || '',
+        model: data.model || '',
+        year: data.year || 0,
+        price: data.price || 0,
+        mileage: data.mileage || 0,
+        engine: data.engine || '',
+        transmission: data.transmission as Vehicle['transmission'] || 'Automatique',
+        fuelType: data.fuel_type as Vehicle['fuelType'] || 'Essence',
+        description: data.description || '',
+        features: data.features || [],
+        images: data.image_urls || [],
+    };
 }
 
-function getPlaceholderImage(id: string) {
-    return PlaceHolderImages.find(p => p.id === id) || PlaceHolderImages[0];
-}
 
 type Spec = {
     icon: React.ElementType;
@@ -48,26 +67,32 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                     <Card className="overflow-hidden shadow-lg">
                         <Carousel className="w-full">
                             <CarouselContent>
-                                {vehicle.images.map(imageId => {
-                                    const image = getPlaceholderImage(imageId);
-                                    return (
-                                        <CarouselItem key={imageId}>
-                                            <div className="aspect-[16/10] relative">
-                                                <Image
-                                                    src={image.imageUrl}
-                                                    alt={image.description}
-                                                    fill
-                                                    className="object-cover"
-                                                    data-ai-hint={image.imageHint}
-                                                    priority
-                                                />
-                                            </div>
-                                        </CarouselItem>
-                                    );
-                                })}
+                                {vehicle.images.length > 0 ? vehicle.images.map((imageUrl, index) => (
+                                    <CarouselItem key={index}>
+                                        <div className="aspect-[16/10] relative">
+                                            <Image
+                                                src={imageUrl}
+                                                alt={`${vehicle.make} ${vehicle.model} - Image ${index + 1}`}
+                                                fill
+                                                className="object-cover"
+                                                priority={index === 0}
+                                            />
+                                        </div>
+                                    </CarouselItem>
+                                )) : (
+                                    <CarouselItem>
+                                       <div className="aspect-[16/10] relative bg-secondary flex items-center justify-center">
+                                           <span className="text-muted-foreground">Pas d'image disponible</span>
+                                       </div>
+                                    </CarouselItem>
+                                )}
                             </CarouselContent>
-                            <CarouselPrevious className="left-4" />
-                            <CarouselNext className="right-4" />
+                            {vehicle.images.length > 1 && (
+                                <>
+                                    <CarouselPrevious className="left-4" />
+                                    <CarouselNext className="right-4" />
+                                </>
+                            )}
                         </Carousel>
                     </Card>
 
@@ -79,14 +104,16 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                             <p className="text-muted-foreground">{vehicle.description}</p>
                         </div>
 
-                        <div>
-                            <h3 className="text-xl font-bold mb-3">Caractéristiques</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {vehicle.features.map(feature => (
-                                    <Badge key={feature} variant="outline" className="text-sm">{feature}</Badge>
-                                ))}
+                        {vehicle.features.length > 0 && (
+                            <div>
+                                <h3 className="text-xl font-bold mb-3">Caractéristiques</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {vehicle.features.map(feature => (
+                                        <Badge key={feature} variant="outline" className="text-sm">{feature}</Badge>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
                 <div className="lg:col-span-2 space-y-8">
