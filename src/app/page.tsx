@@ -1,4 +1,5 @@
 
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card
 import { supabase } from '@/lib/supabaseClient';
 import type { Vehicle } from '@/lib/types';
 
+export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getFeaturedVehicles() {
   try {
@@ -41,6 +43,9 @@ async function getFeaturedVehicles() {
     return { vehicles };
   } catch (e: any) {
     console.error('An unexpected error occurred:', e.message);
+    if (e instanceof TypeError && e.message.includes('fetch failed')) {
+      return { error: `Erreur Supabase: ${e.message}\n\nVérifiez vos variables d'environnement Supabase dans Vercel ou votre fichier .env.local.` };
+    }
     return { error: `Une erreur inattendue est survenue: ${e.message}` };
   }
 }
@@ -100,11 +105,8 @@ export default async function Home() {
              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
                 <AlertTriangle className="h-10 w-10 text-destructive" />
                 <h3 className="mt-4 text-xl font-semibold text-destructive">Impossible de charger les véhicules</h3>
-                <p className="mt-2 text-sm text-destructive/80">
+                <p className="mt-2 text-sm text-destructive/80 whitespace-pre-wrap">
                   {fetchError}
-                </p>
-                 <p className="mt-2 text-xs text-muted-foreground">
-                  Vérifiez vos variables d'environnement Supabase dans Vercel ou votre fichier .env.local.
                 </p>
             </div>
           ) : featuredVehicles && featuredVehicles.length > 0 ? (
