@@ -17,7 +17,7 @@ L'ambiance est sophistiquée et exclusive. L'éclairage doit être dramatique, a
 **Texte et Typographie :**
 1.  **Nom de la marque :** "ZangaAuto" doit être intégré en haut de l'affiche. Utilise une police de caractères moderne, épurée et premium. La couleur du texte doit être blanche ou argentée pour contraster avec le fond.
 2.  **Slogan :** Le slogan "Conduisez l'Exceptionnel" doit être placé sous le nom de la marque, avec une police légèrement plus petite mais tout aussi élégante.
-3.  **Appel à l'action (optionnel) :** En bas de l'affiche, en petit, on peut ajouter "Découvrez notre collection sur ZangaAuto.com".
+3.  **Appel à l'action :** En bas de l'affiche, en petit, ajoute l'URL du site : "https://automarket-smoky.vercel.app".
 
 **Composition et Style :**
 Le style doit être photoréaliste, avec une grande attention aux détails, aux textures et aux reflets. La composition doit être équilibrée, attirant immédiatement l'œil sur la voiture. L'ensemble doit évoquer un sentiment de puissance, de prestige et de rêve accessible.
