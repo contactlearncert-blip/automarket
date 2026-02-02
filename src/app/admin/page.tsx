@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle } from 'lucide-react';
+import { Copy, PlusCircle, Trash2 } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'ZangaAuto';
 
@@ -54,7 +54,13 @@ const vehicleFormSchema = z.object({
   fuelType: z.enum(['Essence', 'Diesel', 'Électrique', 'Hybride']),
   description: z.string().min(10, 'La description doit comporter au moins 10 caractères.'),
   features: z.string().optional(),
-  images: z.string().min(1, "Au moins une URL d'image est requise."),
+  images: z
+    .array(
+      z.object({
+        url: z.string().url('Veuillez entrer une URL valide.'),
+      })
+    )
+    .min(1, 'Au moins une image est requise.'),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
@@ -69,8 +75,13 @@ function AddVehicleForm() {
       transmission: 'Automatique',
       fuelType: 'Essence',
       features: '',
-      images: '',
+      images: [{ url: '' }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'images',
   });
 
   function onSubmit(data: VehicleFormValues) {
@@ -83,13 +94,9 @@ function AddVehicleForm() {
       features: data.features
         ? data.features.split(',').map((s) => s.trim()).filter(Boolean)
         : [],
-      images: data.images
-        .split(',')
-        .map((s) => `getImage('${s.trim()}')`)
-        .filter(Boolean),
+      images: data.images.map((image) => image.url).filter(Boolean),
     };
-    
-    // Custom stringify to handle image mapping without quotes
+
     const codeString = `{
   id: '${newVehicle.id}',
   make: '${newVehicle.make}',
@@ -101,9 +108,9 @@ function AddVehicleForm() {
   transmission: '${newVehicle.transmission}',
   fuelType: '${newVehicle.fuelType}',
   description: '${newVehicle.description.replace(/'/g, "\\'")}',
-  features: [${newVehicle.features.map(f => `'${f.replace(/'/g, "\\'")}'`).join(', ')}],
+  features: [${newVehicle.features.map((f) => `'${f.replace(/'/g, "\\'")}'`).join(', ')}],
   images: [
-    ${newVehicle.images.join(',\n    ')}
+    ${newVehicle.images.map((url) => `'${url.replace(/'/g, "\\'")}'`).join(',\n    ')}
   ],
 }`;
 
@@ -329,23 +336,53 @@ function AddVehicleForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="images"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>ID des images</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="ex: sedan-1, sedan-1-gallery-1" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Séparez chaque ID d'image (du fichier placeholder-images.json) par une virgule. Le
-                  premier sera l'image principale.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          
+          <div className="space-y-4">
+            <Label>URLs des Images</Label>
+            <FormDescription>
+              Ajoutez les URLs complètes des images. La première sera l'image principale.
+            </FormDescription>
+            {fields.map((field, index) => (
+              <FormField
+                key={field.id}
+                control={form.control}
+                name={`images.${index}.url`}
+                render={({ field: inputField }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <FormControl>
+                        <Input placeholder="https://exemple.com/image.jpg" {...inputField} />
+                      </FormControl>
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-2"
+              onClick={() => append({ url: '' })}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Ajouter une URL d'image
+            </Button>
+             <FormMessage>
+              {form.formState.errors.images && form.formState.errors.images.root?.message}
+            </FormMessage>
+          </div>
           
           <Button type="submit" className="w-full md:w-auto">Générer le Code du Véhicule</Button>
         </form>
