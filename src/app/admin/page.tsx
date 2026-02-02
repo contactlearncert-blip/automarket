@@ -31,10 +31,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, Clipboard } from 'lucide-react';
+import { PlusCircle, Trash2, Clipboard, Code } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Code } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'ZangaAuto';
 
