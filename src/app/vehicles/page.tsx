@@ -3,14 +3,19 @@ import type { Vehicle } from '@/lib/types';
 import { supabase } from '@/lib/supabaseClient';
 
 async function getVehicles() {
+  if (!supabase) {
+    console.warn("La configuration de Supabase est incomplète, impossible de charger le catalogue.");
+    return { vehicles: [], makes: [] };
+  }
+
   const { data: allVehicles, error: vehiclesError } = await supabase
     .from('vehicles')
     .select('*')
     .order('created_at', { ascending: false });
 
   if (vehiclesError) {
-    console.error('Supabase vehicles error:', vehiclesError);
-    throw new Error('Erreur de connexion à la base de données pour le catalogue. Assurez-vous que vos clés Supabase sont correctement configurées et que la table "vehicles" existe.');
+    console.error(`Erreur de base de données (catalogue) : ${vehiclesError.message}`);
+    return { vehicles: [], makes: [] };
   }
 
   const { data: makesData, error: makesError } = await supabase
@@ -18,10 +23,9 @@ async function getVehicles() {
     .select('make');
 
   if (makesError) {
-    console.error('Supabase makes error:', makesError);
-    // This is less critical, we can maybe continue without makes
-    // For now, let's throw.
-    throw new Error('Erreur de connexion à la base de données pour les marques.');
+    console.error(`Erreur de base de données (marques) : ${makesError.message}`);
+    // Retourner les véhicules même si les marques échouent
+    return { vehicles: allVehicles || [], makes: [] };
   }
 
   const makes = [...new Set((makesData || []).map(v => v.make))];

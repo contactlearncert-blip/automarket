@@ -11,6 +11,11 @@ import { supabase } from '@/lib/supabaseClient';
 
 
 async function getFeaturedVehicles() {
+  if (!supabase) {
+    console.warn("La configuration de Supabase est incomplète, impossible de charger les véhicules.");
+    return { vehicles: [] };
+  }
+
   const { data, error } = await supabase
     .from('vehicles')
     .select('*')
@@ -18,8 +23,10 @@ async function getFeaturedVehicles() {
     .limit(3);
 
   if (error) {
-    console.error('Supabase error:', error);
-    throw new Error('Erreur de connexion à la base de données pour les véhicules en vedette. Assurez-vous que vos clés Supabase sont correctement configurées dans le fichier .env et que la table "vehicles" existe.');
+    console.error(`Erreur de base de données (véhicules en vedette) : ${error.message}`);
+    // Ne pas planter le site, retourner un tableau vide.
+    // L'erreur sera visible dans les logs du serveur.
+    return { vehicles: [] };
   }
   
   const featuredVehicles: Vehicle[] = data || [];

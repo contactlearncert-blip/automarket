@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, Loader2, Server } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Server, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -76,6 +76,15 @@ function AddVehicleForm() {
   });
 
   async function onSubmit(data: VehicleFormValues) {
+    if (!supabase) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur de configuration',
+        description: 'La connexion à Supabase n\'est pas configurée. Veuillez vérifier les instructions sur cette page.',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const vehicleData = {
       ...data,
@@ -88,10 +97,16 @@ function AddVehicleForm() {
     setIsSubmitting(false);
 
     if (error) {
+      let description = `Une erreur est survenue: ${error.message}`;
+      if (error.message.includes('fetch failed')) {
+        description = "La connexion à Supabase a échoué. Vérifiez votre connexion internet et la configuration de vos clés Supabase dans le fichier .env.local.";
+      } else if (error.code === '42501') { // permission denied
+        description = "Erreur de permission. Assurez-vous que les politiques de sécurité (RLS) sur votre table 'vehicles' autorisent l'insertion. Si le RLS est activé, une politique est nécessaire pour les opérations d'écriture publique.";
+      }
       toast({
         variant: 'destructive',
         title: 'Erreur lors de l\'ajout',
-        description: `Une erreur est survenue: ${error.message}`,
+        description: description,
       });
     } else {
       toast({
@@ -316,10 +331,73 @@ function AddVehicleForm() {
 }
 
 
+function SupabaseNotConfigured() {
+    return (
+        <div className="container mx-auto py-12 px-4">
+            <Card className="max-w-4xl mx-auto border-destructive">
+                <CardHeader>
+                    <div className="flex items-start gap-4">
+                        <div className="p-2 bg-destructive/10 rounded-full">
+                           <AlertTriangle className="h-6 w-6 text-destructive" />
+                        </div>
+                        <div className="flex-1">
+                            <CardTitle className="text-destructive">Configuration de la base de données requise</CardTitle>
+                            <CardDescription>
+                                Pour activer l'ajout de véhicules, la connexion à Supabase doit être finalisée.
+                            </CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p>C'est la dernière étape ! Pour des raisons de sécurité, vous devez effectuer cette action manuellement.</p>
+                    <div className="p-4 bg-muted rounded-lg space-y-3 text-sm">
+                        <p className="font-bold text-base">Action requise :</p>
+                        <ol className="list-decimal list-inside space-y-2 pl-2">
+                            <li>
+                                Rendez-vous sur votre {" "}
+                                <a
+                                    href="https://app.supabase.com/project/jtyvqlxplwbtkyjkysqt/settings/api"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-medium text-primary underline hover:text-primary/80"
+                                >
+                                    tableau de bord Supabase
+                                </a>.
+                            </li>
+                             <li>
+                                Dans la section <strong>Project API keys</strong>, copiez la clé qui se nomme <code>anon</code> / <code>public</code>.
+                            </li>
+                            <li>
+                                Ouvrez le fichier <code>.env.local</code> situé à la racine de votre projet.
+                            </li>
+                            <li>
+                                Collez la clé copiée pour remplacer la valeur <code>VOTRE_CLE_ANON_SUPABASE_ICI</code>.
+                                <pre className="mt-2 p-2 bg-background rounded-md text-xs overflow-x-auto">
+                                    <code>
+                                        NEXT_PUBLIC_SUPABASE_ANON_KEY="VOTRE_CLE_ANON_SUPABASE_ICI"
+                                    </code>
+                                </pre>
+                            </li>
+                            <li>Sauvegardez le fichier et rafraîchissez simplement cette page.</li>
+                        </ol>
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-2">
+                        L'URL de votre projet Supabase (<code>NEXT_PUBLIC_SUPABASE_URL</code>) est déjà correctement configurée dans ce même fichier. Il ne manque que la clé.
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  if (!supabase) {
+      return <SupabaseNotConfigured />
+  }
 
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {

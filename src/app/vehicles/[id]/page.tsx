@@ -11,6 +11,11 @@ import { supabase } from '@/lib/supabaseClient';
 
 
 async function getVehicle(id: string): Promise<Vehicle | null> {
+    if (!supabase) {
+        console.warn("La configuration de Supabase est incomplète, impossible de charger ce véhicule.");
+        return null;
+    }
+
     const vehicleId = parseInt(id, 10);
     if (isNaN(vehicleId)) {
         return null;
@@ -23,12 +28,9 @@ async function getVehicle(id: string): Promise<Vehicle | null> {
         .single();
 
     if (error) {
-        // It's common for .single() to error if no row is found, which is a "not found" case.
-        if (error.code === 'PGRST116') {
-            return null;
-        }
-        console.error('Supabase error:', error);
-        throw new Error('Erreur de connexion à la base de données pour ce véhicule. Assurez-vous que vos clés Supabase sont correctement configurées.');
+        console.error(`Erreur de base de données pour ce véhicule : ${error.message}`);
+        // Retourner null déclenchera la page notFound() en dessous.
+        return null;
     }
 
     return data;
@@ -143,10 +145,15 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
 
 // Generate static paths for all vehicles
 export async function generateStaticParams() {
+  if (!supabase) {
+    return [];
+  }
   const { data, error } = await supabase.from('vehicles').select('id');
 
   if (error) {
     console.error('Supabase error generating static params:', error);
+    // Return an empty array to avoid breaking the build.
+    // The error will be visible in the build logs.
     return [];
   }
 
