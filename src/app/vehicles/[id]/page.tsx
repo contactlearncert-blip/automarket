@@ -12,7 +12,6 @@ import { supabase } from '@/lib/supabaseClient';
 
 async function getVehicle(id: string): Promise<Vehicle | null> {
     if (!supabase) {
-        console.warn("La configuration de Supabase est incomplète, impossible de charger ce véhicule.");
         return null;
     }
 
@@ -28,8 +27,6 @@ async function getVehicle(id: string): Promise<Vehicle | null> {
         .single();
 
     if (error) {
-        console.error(`Erreur de base de données pour ce véhicule : ${error.message}`);
-        // Retourner null déclenchera la page notFound() en dessous.
         return null;
     }
 
@@ -151,9 +148,6 @@ export async function generateStaticParams() {
   const { data, error } = await supabase.from('vehicles').select('id');
 
   if (error) {
-    console.error('Supabase error generating static params:', error);
-    // Return an empty array to avoid breaking the build.
-    // The error will be visible in the build logs.
     return [];
   }
 

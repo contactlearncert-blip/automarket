@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabaseClient';
 
 async function getVehicles() {
   if (!supabase) {
-    console.warn("La configuration de Supabase est incomplète, impossible de charger le catalogue.");
     return { vehicles: [], makes: [] };
   }
 
@@ -14,7 +13,6 @@ async function getVehicles() {
     .order('created_at', { ascending: false });
 
   if (vehiclesError) {
-    console.error(`Erreur de base de données (catalogue) : ${vehiclesError.message}`);
     return { vehicles: [], makes: [] };
   }
 
@@ -23,8 +21,6 @@ async function getVehicles() {
     .select('make');
 
   if (makesError) {
-    console.error(`Erreur de base de données (marques) : ${makesError.message}`);
-    // Retourner les véhicules même si les marques échouent
     return { vehicles: allVehicles || [], makes: [] };
   }
 

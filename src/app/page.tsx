@@ -12,7 +12,6 @@ import { supabase } from '@/lib/supabaseClient';
 
 async function getFeaturedVehicles() {
   if (!supabase) {
-    console.warn("La configuration de Supabase est incomplète, impossible de charger les véhicules.");
     return { vehicles: [] };
   }
 
@@ -23,9 +22,6 @@ async function getFeaturedVehicles() {
     .limit(3);
 
   if (error) {
-    console.error(`Erreur de base de données (véhicules en vedette) : ${error.message}`);
-    // Ne pas planter le site, retourner un tableau vide.
-    // L'erreur sera visible dans les logs du serveur.
     return { vehicles: [] };
   }
   
