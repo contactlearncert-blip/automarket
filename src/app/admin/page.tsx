@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,23 +31,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { PlusCircle, Trash2, Clipboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Trash2, Loader2, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Code } from 'lucide-react';
 
 const ADMIN_PASSWORD = 'ZangaAuto';
 
-// Zod schema for form validation
 const vehicleFormSchema = z.object({
   make: z.string().min(2, 'La marque doit comporter au moins 2 caractères.'),
   model: z.string().min(1, 'Le modèle est requis.'),
   year: z.coerce
     .number()
     .min(1900, 'Année invalide.')
-    .max(
-      new Date().getFullYear() + 1,
-      "L'année ne peut pas être dans le futur."
-    ),
+    .max(new Date().getFullYear() + 1, "L'année ne peut pas être dans le futur."),
   price: z.coerce.number().min(0, 'Le prix doit être un nombre positif.'),
   mileage: z.coerce.number().min(0, 'Le kilométrage doit être un nombre positif.'),
   engine: z.string().min(1, 'La motorisation est requise.'),
@@ -55,36 +52,14 @@ const vehicleFormSchema = z.object({
   fuelType: z.enum(['Essence', 'Diesel', 'Électrique', 'Hybride']),
   description: z.string().min(10, 'La description doit comporter au moins 10 caractères.'),
   features: z.string().optional(),
-  images: z
-    .array(
-      z.object({
-        url: z.string().url('Veuillez entrer une URL valide.'),
-      })
-    )
-    .min(1, 'Au moins une image est requise.'),
+  images: z.array(z.object({ url: z.string().url('Veuillez entrer une URL valide.') })).min(1, 'Au moins une image est requise.'),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
-function AddVehicleForm() {
+function GenerateVehicleCodeForm() {
+  const [generatedCode, setGeneratedCode] = useState('');
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Check for Supabase config
-  if (!supabase) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
-        <AlertTriangle className="h-10 w-10 text-destructive" />
-        <h2 className="mt-6 text-2xl font-semibold text-destructive">
-          Configuration de la base de données manquante
-        </h2>
-        <p className="mt-2 text-center text-sm text-destructive/80 max-w-xl">
-          Pour utiliser le formulaire d'ajout direct, la connexion à la base de données Supabase doit être configurée. Veuillez vérifier que les variables d'environnement sont correctement définies dans votre projet.
-        </p>
-      </div>
-    )
-  }
-
 
   const form = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
@@ -95,62 +70,55 @@ function AddVehicleForm() {
       images: [{ url: '' }],
     },
   });
-
+  
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'images',
   });
 
-  async function onSubmit(data: VehicleFormValues) {
-    setIsSubmitting(true);
-    
-    const vehicleDataForDb = {
-      make: data.make,
-      model: data.model,
-      year: data.year,
-      price: data.price,
-      mileage: data.mileage,
-      engine: data.engine,
-      transmission: data.transmission,
-      fuel_type: data.fuelType,
-      description: data.description,
-      features: data.features
-        ? data.features.split(',').map((s) => s.trim()).filter(Boolean)
-        : [],
-      image_urls: data.images.map((image) => image.url).filter(Boolean),
+  function onSubmit(data: VehicleFormValues) {
+    const newId = Date.now().toString();
+    const vehicleObject = {
+      id: newId,
+      ...data,
+      features: data.features ? data.features.split(',').map(s => s.trim()).filter(Boolean) : [],
+      images: data.images.map(img => img.url).filter(Boolean),
     };
     
-    const { error } = await supabase.from('vehicles').insert([vehicleDataForDb]);
-
-    setIsSubmitting(false);
-
-    if (error) {
-      console.error('Supabase error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erreur lors de l\'ajout',
-        description: "Le véhicule n'a pas pu être ajouté. Message: " + error.message,
-      });
-    } else {
-      toast({
-        title: 'Véhicule Ajouté !',
-        description: 'Le nouveau véhicule est maintenant visible sur le site.',
-      });
-      form.reset();
-      // Reset images array to one empty field
-      remove();
-      append({ url: '' });
-    }
+    // Pretty print the object
+    const codeString = `{\n${Object.entries(vehicleObject).map(([key, value]) => {
+      let formattedValue;
+      if (key === 'id') {
+         formattedValue = `'${value}'`;
+      } else if (typeof value === 'string') {
+        formattedValue = `'${value.replace(/'/g, "\\'")}'`;
+      } else if (Array.isArray(value)) {
+        formattedValue = `[${value.map(v => `'${v.replace(/'/g, "\\'")}'`).join(', ')}]`;
+      } else {
+        formattedValue = value;
+      }
+      return `  ${key}: ${formattedValue}`;
+    }).join(',\n')}\n},`;
+    
+    setGeneratedCode(codeString);
   }
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedCode);
+    toast({
+      title: 'Copié !',
+      description: 'Le code a été copié dans le presse-papiers.',
+    });
+  };
 
   return (
     <>
       <p className="text-muted-foreground mb-6">
-        Remplissez le formulaire pour ajouter un nouveau véhicule directement au catalogue du site.
+        Remplissez ce formulaire pour générer le code du véhicule. Copiez ensuite ce code et collez-le dans le fichier <code>src/lib/vehicle-data.ts</code>.
       </p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="make"
@@ -205,7 +173,7 @@ function AddVehicleForm() {
                 </FormItem>
               )}
             />
-            <FormField
+             <FormField
               control={form.control}
               name="mileage"
               render={({ field }) => (
@@ -219,7 +187,7 @@ function AddVehicleForm() {
               )}
             />
           </div>
-          <FormField
+            <FormField
             control={form.control}
             name="engine"
             render={({ field }) => (
@@ -232,7 +200,7 @@ function AddVehicleForm() {
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="transmission"
@@ -278,7 +246,7 @@ function AddVehicleForm() {
               )}
             />
           </div>
-          <FormField
+           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
@@ -291,7 +259,7 @@ function AddVehicleForm() {
               </FormItem>
             )}
           />
-          <FormField
+           <FormField
             control={form.control}
             name="features"
             render={({ field }) => (
@@ -305,8 +273,7 @@ function AddVehicleForm() {
               </FormItem>
             )}
           />
-          
-          <div className="space-y-4">
+           <div className="space-y-4">
             <Label>URLs des Images</Label>
             <FormDescription>
               Ajoutez les URLs complètes des images. La première sera l'image principale.
@@ -323,13 +290,7 @@ function AddVehicleForm() {
                         <Input placeholder="https://exemple.com/image.jpg" {...inputField} />
                       </FormControl>
                       {fields.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => remove(index)}
-                          disabled={isSubmitting}
-                        >
+                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
@@ -339,14 +300,7 @@ function AddVehicleForm() {
                 )}
               />
             ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={() => append({ url: '' })}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => append({ url: '' })}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Ajouter une URL d'image
             </Button>
@@ -354,17 +308,39 @@ function AddVehicleForm() {
               {form.formState.errors.images && form.formState.errors.images.root?.message}
             </FormMessage>
           </div>
-          
-          <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <PlusCircle className="mr-2 h-4 w-4" />
-            )}
-            {isSubmitting ? 'Ajout en cours...' : 'Ajouter le Véhicule'}
+
+          <Button type="submit" className="w-full md:w-auto">
+            <Code className="mr-2 h-4 w-4" />
+            Générer le Code
           </Button>
         </form>
       </Form>
+      {generatedCode && (
+          <div className="mt-8 space-y-4">
+            <Alert>
+              <AlertTitle className="flex items-center gap-2">
+                <Clipboard className="h-4 w-4" />
+                Code Généré
+              </AlertTitle>
+              <AlertDescription>
+                Copiez le code ci-dessous et collez-le dans le tableau `vehicles` du fichier <code>src/lib/vehicle-data.ts</code>.
+              </AlertDescription>
+            </Alert>
+            <div className="relative">
+              <pre className="bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto text-sm">
+                {generatedCode}
+              </pre>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 h-7 w-7"
+                onClick={copyToClipboard}
+              >
+                <Clipboard className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
     </>
   );
 }
@@ -375,27 +351,13 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const storedAuth = sessionStorage.getItem('zanga-admin-auth');
-    if (storedAuth === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem('zanga-admin-auth', 'true');
       setIsAuthenticated(true);
       setError('');
     } else {
       setError('Mot de passe incorrect.');
     }
-  };
-  
-  const handleLogout = () => {
-    sessionStorage.removeItem('zanga-admin-auth');
-    setIsAuthenticated(false);
-    setPassword('');
   };
 
   if (isAuthenticated) {
@@ -403,17 +365,10 @@ export default function AdminPage() {
       <div className="container mx-auto py-12 px-4">
         <Card className="max-w-4xl mx-auto">
           <CardHeader>
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle>Ajouter un Véhicule</CardTitle>
-              </div>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Déconnexion
-              </Button>
-            </div>
+            <CardTitle>Générer un nouveau véhicule</CardTitle>
           </CardHeader>
           <CardContent>
-            <AddVehicleForm />
+            <GenerateVehicleCodeForm />
           </CardContent>
         </Card>
       </div>

@@ -7,51 +7,12 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { ContactSellerForm } from '@/components/vehicles/contact-seller-form';
 import { Cog, Fuel, Gauge, Calendar, DollarSign, Wrench } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
-import type { Tables } from '@/lib/database.types';
+import { vehicles } from '@/lib/vehicle-data';
 
 
-// Revalidate the data every 60 seconds
-export const revalidate = 60;
-
-function mapVehicleData(dbVehicle: Tables<'vehicles'>): Vehicle {
-  return {
-    id: String(dbVehicle.id),
-    make: dbVehicle.make ?? 'N/A',
-    model: dbVehicle.model ?? 'N/A',
-    year: dbVehicle.year ?? 0,
-    price: dbVehicle.price ?? 0,
-    mileage: dbVehicle.mileage ?? 0,
-    engine: dbVehicle.engine ?? 'N/A',
-    transmission: (dbVehicle.transmission as Vehicle['transmission']) ?? 'Manuelle',
-    fuelType: (dbVehicle.fuel_type as Vehicle['fuelType']) ?? 'Essence',
-    description: dbVehicle.description ?? '',
-    features: dbVehicle.features ?? [],
-    images: dbVehicle.image_urls ?? [],
-  };
-}
-
-
-async function getVehicle(id: string): Promise<Vehicle | null> {
-    if (!supabase) {
-      throw new Error("La configuration de Supabase est manquante. Impossible de charger le véhicule.");
-    }
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('id', Number(id))
-      .single();
-
-    if (error && error.code !== 'PGRST116') { // PGRST116: "exact one row not found"
-        console.error('Supabase error:', error);
-        throw new Error(`Erreur de connexion à la base de données. Veuillez vérifier votre configuration. Détails: ${error.message}`);
-    }
-    
-    if (!data) {
-        return null;
-    }
-    
-    return mapVehicleData(data);
+function getVehicle(id: string): Vehicle | null {
+    const vehicle = vehicles.find(v => v.id === id);
+    return vehicle || null;
 }
 
 
@@ -61,8 +22,8 @@ type Spec = {
     value: string | number;
 }
 
-export default async function VehicleDetailPage({ params }: { params: { id: string } }) {
-    const vehicle = await getVehicle(params.id);
+export default function VehicleDetailPage({ params }: { params: { id: string } }) {
+    const vehicle = getVehicle(params.id);
 
     if (!vehicle) {
         notFound();
@@ -159,4 +120,11 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
             </div>
         </div>
     );
+}
+
+// Generate static paths for all vehicles
+export async function generateStaticParams() {
+  return vehicles.map((vehicle) => ({
+    id: vehicle.id,
+  }));
 }

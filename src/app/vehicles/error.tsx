@@ -15,10 +15,10 @@ export default function Error({
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
             <AlertTriangle className="h-10 w-10 text-destructive" />
             <h2 className="mt-6 text-2xl font-semibold text-destructive">
-                Impossible de charger les véhicules
+                Une erreur est survenue
             </h2>
             <p className="mt-2 text-center text-sm text-destructive/80 max-w-xl whitespace-pre-wrap">
-                {error.message || "Une erreur inconnue est survenue."}
+                {error.message || "Une erreur inconnue est survenue lors du chargement de cette page."}
             </p>
             <Button
                 onClick={() => reset()}
