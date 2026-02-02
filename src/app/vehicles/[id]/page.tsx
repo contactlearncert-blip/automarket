@@ -7,44 +7,11 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { ContactSellerForm } from '@/components/vehicles/contact-seller-form';
 import { Cog, Fuel, Gauge, Calendar, DollarSign, Wrench } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import { vehicles as allVehicles } from '@/lib/vehicle-data';
 
-export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getVehicle(id: string): Promise<Vehicle | undefined> {
-    try {
-        const { data, error } = await supabase
-            .from('vehicles')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-        if (error || !data) {
-            console.error('Error fetching vehicle:', error);
-            return undefined;
-        }
-
-        return {
-            id: data.id.toString(),
-            make: data.make || '',
-            model: data.model || '',
-            year: data.year || 0,
-            price: data.price || 0,
-            mileage: data.mileage || 0,
-            engine: data.engine || '',
-            transmission: data.transmission as Vehicle['transmission'] || 'Automatique',
-            fuelType: data.fuel_type as Vehicle['fuelType'] || 'Essence',
-            description: data.description || '',
-            features: data.features || [],
-            images: data.image_urls || [],
-        };
-    } catch(e: any) {
-        if (e instanceof TypeError && e.message.includes('fetch failed')) {
-            console.error(`Erreur Supabase: ${e.message}. Vérifiez vos variables d'environnement Supabase.`);
-        }
-        // In case of a fetch error or other issues, we can treat it as "not found"
-        return undefined;
-    }
+    return allVehicles.find(v => v.id === id);
 }
 
 

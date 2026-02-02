@@ -3,59 +3,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, AlertTriangle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card';
-import { supabase } from '@/lib/supabaseClient';
 import type { Vehicle } from '@/lib/types';
-
-export const revalidate = 60; // Revalidate every 60 seconds
+import { vehicles as allVehicles } from '@/lib/vehicle-data';
 
 async function getFeaturedVehicles() {
-  try {
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .limit(3)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching featured vehicles:', error.message);
-      // Return an error object instead of an empty array
-      return { error: `Erreur Supabase: ${error.message}` };
-    }
-    
-    // Map Supabase data to Vehicle type
-    const vehicles: Vehicle[] = data.map(v => ({
-      id: v.id.toString(),
-      make: v.make || '',
-      model: v.model || '',
-      year: v.year || 0,
-      price: v.price || 0,
-      mileage: v.mileage || 0,
-      engine: v.engine || '',
-      transmission: v.transmission as Vehicle['transmission'] || 'Automatique',
-      fuelType: v.fuel_type as Vehicle['fuelType'] || 'Essence',
-      description: v.description || '',
-      features: v.features || [],
-      images: v.image_urls || [],
-    }));
-    return { vehicles };
-  } catch (e: any) {
-    console.error('An unexpected error occurred:', e.message);
-    if (e instanceof TypeError && e.message.includes('fetch failed')) {
-      return { error: `Erreur Supabase: ${e.message}\n\nVérifiez vos variables d'environnement Supabase dans Vercel ou votre fichier .env.local.` };
-    }
-    return { error: `Une erreur inattendue est survenue: ${e.message}` };
-  }
+  // Get the first 3 vehicles as featured
+  const featuredVehicles = allVehicles.slice(0, 3);
+  return { vehicles: featuredVehicles };
 }
 
 
 export default async function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-showroom');
-  const result = await getFeaturedVehicles();
-  const featuredVehicles = result.vehicles;
-  const fetchError = result.error;
+  const { vehicles: featuredVehicles } = await getFeaturedVehicles();
 
   return (
     <>
@@ -101,15 +64,7 @@ export default async function Home() {
               </Link>
             </Button>
           </div>
-          {fetchError ? (
-             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
-                <AlertTriangle className="h-10 w-10 text-destructive" />
-                <h3 className="mt-4 text-xl font-semibold text-destructive">Impossible de charger les véhicules</h3>
-                <p className="mt-2 text-sm text-destructive/80 whitespace-pre-wrap">
-                  {fetchError}
-                </p>
-            </div>
-          ) : featuredVehicles && featuredVehicles.length > 0 ? (
+          {featuredVehicles && featuredVehicles.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {featuredVehicles.map(vehicle => (
                   <FeaturedVehicleCard key={vehicle.id} vehicle={vehicle} />
