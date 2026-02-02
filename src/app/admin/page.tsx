@@ -32,7 +32,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 const ADMIN_PASSWORD = 'ZangaAuto';
 
@@ -67,7 +68,23 @@ type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
 function AddVehicleForm() {
   const { toast } = useToast();
-  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check for Supabase config
+  if (!supabase) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-destructive bg-destructive/10 p-12 text-center">
+        <AlertTriangle className="h-10 w-10 text-destructive" />
+        <h2 className="mt-6 text-2xl font-semibold text-destructive">
+          Configuration de la base de données manquante
+        </h2>
+        <p className="mt-2 text-center text-sm text-destructive/80 max-w-xl">
+          Pour utiliser le formulaire d'ajout direct, la connexion à la base de données Supabase doit être configurée. Veuillez vérifier que les variables d'environnement sont correctement définies dans votre projet.
+        </p>
+      </div>
+    )
+  }
+
 
   const form = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
@@ -84,100 +101,52 @@ function AddVehicleForm() {
     name: 'images',
   });
 
-  function onSubmit(data: VehicleFormValues) {
-    const newVehicle = {
-      id: String(Date.now()),
-      ...data,
-      year: Number(data.year),
-      price: Number(data.price),
-      mileage: Number(data.mileage),
+  async function onSubmit(data: VehicleFormValues) {
+    setIsSubmitting(true);
+    
+    const vehicleDataForDb = {
+      make: data.make,
+      model: data.model,
+      year: data.year,
+      price: data.price,
+      mileage: data.mileage,
+      engine: data.engine,
+      transmission: data.transmission,
+      fuel_type: data.fuelType,
+      description: data.description,
       features: data.features
         ? data.features.split(',').map((s) => s.trim()).filter(Boolean)
         : [],
-      images: data.images.map((image) => image.url).filter(Boolean),
+      image_urls: data.images.map((image) => image.url).filter(Boolean),
     };
+    
+    const { error } = await supabase.from('vehicles').insert([vehicleDataForDb]);
 
-    const codeString = `{
-  id: '${newVehicle.id}',
-  make: '${newVehicle.make}',
-  model: '${newVehicle.model}',
-  year: ${newVehicle.year},
-  price: ${newVehicle.price},
-  mileage: ${newVehicle.mileage},
-  engine: '${newVehicle.engine}',
-  transmission: '${newVehicle.transmission}',
-  fuelType: '${newVehicle.fuelType}',
-  description: '${newVehicle.description.replace(/'/g, "\\'")}',
-  features: [${newVehicle.features.map((f) => `'${f.replace(/'/g, "\\'")}'`).join(', ')}],
-  images: [
-    ${newVehicle.images.map((url) => `'${url.replace(/'/g, "\\'")}'`).join(',\n    ')}
-  ],
-}`;
+    setIsSubmitting(false);
 
-    setGeneratedCode(codeString);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  const handleCopy = () => {
-    if (generatedCode) {
-      navigator.clipboard.writeText(generatedCode + ',');
+    if (error) {
+      console.error('Supabase error:', error);
       toast({
-        title: 'Copié !',
-        description: 'Le code du véhicule a été copié dans le presse-papiers.',
+        variant: 'destructive',
+        title: 'Erreur lors de l\'ajout',
+        description: "Le véhicule n'a pas pu être ajouté. Message: " + error.message,
       });
+    } else {
+      toast({
+        title: 'Véhicule Ajouté !',
+        description: 'Le nouveau véhicule est maintenant visible sur le site.',
+      });
+      form.reset();
+      // Reset images array to one empty field
+      remove();
+      append({ url: '' });
     }
-  };
-
-  if (generatedCode) {
-    return (
-      <div>
-        <h3 className="text-xl font-bold mb-2">Code Généré</h3>
-        <p className="text-muted-foreground mb-4">
-          Le code de votre véhicule est prêt. Suivez les étapes ci-dessous pour l'ajouter au site.
-        </p>
-
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-semibold mb-2">1. Copiez le code suivant</h4>
-            <div className="relative">
-              <pre className="bg-muted p-4 rounded-md text-sm overflow-x-auto w-full">
-                <code>{generatedCode}</code>
-              </pre>
-              <Button
-                size="icon"
-                variant="outline"
-                className="absolute top-3 right-3 h-7 w-7"
-                onClick={handleCopy}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">2. Ajoutez-le au fichier de données</h4>
-            <p className="text-muted-foreground">
-              Ouvrez le fichier ci-dessous et collez le code copié à l'intérieur du tableau `vehicles`.
-            </p>
-            <code className="mt-2 block rounded bg-muted p-3 text-sm font-mono text-left break-all">
-              src/lib/vehicle-data.ts
-            </code>
-            <p className="text-muted-foreground mt-2 text-xs">
-              Assurez-vous que l'objet est suivi d'une virgule s'il n'est pas le dernier de la liste.
-            </p>
-          </div>
-        </div>
-        
-        <Button onClick={() => { setGeneratedCode(null); form.reset(); }} className="mt-8">
-          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un autre véhicule
-        </Button>
-      </div>
-    );
   }
 
   return (
     <>
       <p className="text-muted-foreground mb-6">
-        Remplissez le formulaire pour générer le code d'un nouveau véhicule. Vous devrez ensuite le copier/coller dans le fichier de données du projet.
+        Remplissez le formulaire pour ajouter un nouveau véhicule directement au catalogue du site.
       </p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -359,6 +328,7 @@ function AddVehicleForm() {
                           variant="destructive"
                           size="icon"
                           onClick={() => remove(index)}
+                          disabled={isSubmitting}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -375,6 +345,7 @@ function AddVehicleForm() {
               size="sm"
               className="mt-2"
               onClick={() => append({ url: '' })}
+              disabled={isSubmitting}
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Ajouter une URL d'image
@@ -384,7 +355,14 @@ function AddVehicleForm() {
             </FormMessage>
           </div>
           
-          <Button type="submit" className="w-full md:w-auto">Générer le Code du Véhicule</Button>
+          <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <PlusCircle className="mr-2 h-4 w-4" />
+            )}
+            {isSubmitting ? 'Ajout en cours...' : 'Ajouter le Véhicule'}
+          </Button>
         </form>
       </Form>
     </>

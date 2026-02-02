@@ -7,11 +7,51 @@ import { ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card';
 import type { Vehicle } from '@/lib/types';
-import { vehicles as allVehicles } from '@/lib/vehicle-data';
+import { supabase } from '@/lib/supabaseClient';
+import type { Tables } from '@/lib/database.types';
+
+
+// Revalidate the data every 60 seconds
+export const revalidate = 60;
+
+function mapVehicleData(dbVehicle: Tables<'vehicles'>): Vehicle {
+  return {
+    id: String(dbVehicle.id),
+    make: dbVehicle.make ?? 'N/A',
+    model: dbVehicle.model ?? 'N/A',
+    year: dbVehicle.year ?? 0,
+    price: dbVehicle.price ?? 0,
+    mileage: dbVehicle.mileage ?? 0,
+    engine: dbVehicle.engine ?? 'N/A',
+    transmission: (dbVehicle.transmission as Vehicle['transmission']) ?? 'Manuelle',
+    fuelType: (dbVehicle.fuel_type as Vehicle['fuelType']) ?? 'Essence',
+    description: dbVehicle.description ?? '',
+    features: dbVehicle.features ?? [],
+    images: dbVehicle.image_urls ?? [],
+  };
+}
+
 
 async function getFeaturedVehicles() {
-  // Get the first 3 vehicles as featured
-  const featuredVehicles = allVehicles.slice(0, 3);
+  if (!supabase) {
+    console.warn("La configuration de Supabase est manquante. Les véhicules ne peuvent pas être chargés.");
+    return { vehicles: [] };
+  }
+
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error('Supabase error:', error);
+    // Don't throw an error on the homepage to avoid crashing the whole site.
+    // The page will gracefully show that there are no vehicles.
+    return { vehicles: [] };
+  }
+  
+  const featuredVehicles: Vehicle[] = (data ?? []).map(mapVehicleData);
   return { vehicles: featuredVehicles };
 }
 
