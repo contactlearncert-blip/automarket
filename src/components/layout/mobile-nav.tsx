@@ -3,39 +3,50 @@
 import Link from "next/link";
 import { Car, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SheetClose } from "@/components/ui/sheet";
 
 export function MobileNav() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center border-b pb-4">
-        <Link href="/" className="flex items-center gap-3 font-bold text-2xl text-primary">
-          <div className="bg-primary p-2 rounded-lg">
-            <Car className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <span className="font-headline">ZangaAuto</span>
-        </Link>
+        <SheetClose asChild>
+          <Link href="/" className="flex items-center gap-3 font-bold text-2xl text-primary">
+            <div className="bg-primary p-2 rounded-lg">
+              <Car className="h-6 w-6 text-primary-foreground" />
+            </div>
+            <span className="font-headline">ZangaAuto</span>
+          </Link>
+        </SheetClose>
       </div>
       <nav className="flex-grow mt-6">
         <ul className="flex flex-col gap-4">
           <li>
-            <Link href="/" className="text-lg font-medium hover:text-primary">
-              Accueil
-            </Link>
+            <SheetClose asChild>
+              <Link href="/" className="text-lg font-medium hover:text-primary">
+                Accueil
+              </Link>
+            </SheetClose>
           </li>
           <li>
-            <Link href="/vehicles" className="text-lg font-medium hover:text-primary">
-              Catalogue
-            </Link>
+            <SheetClose asChild>
+              <Link href="/vehicles" className="text-lg font-medium hover:text-primary">
+                Catalogue
+              </Link>
+            </SheetClose>
           </li>
           <li>
-            <Link href="/about" className="text-lg font-medium hover:text-primary">
-              À Propos
-            </Link>
+            <SheetClose asChild>
+              <Link href="/about" className="text-lg font-medium hover:text-primary">
+                À Propos
+              </Link>
+            </SheetClose>
           </li>
           <li>
-            <Link href="/admin" className="text-lg font-medium hover:text-primary">
-              Ajouter voitures
-            </Link>
+            <SheetClose asChild>
+              <Link href="/admin" className="text-lg font-medium hover:text-primary">
+                Ajouter voitures
+              </Link>
+            </SheetClose>
           </li>
         </ul>
       </nav>
