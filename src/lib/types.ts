@@ -10,5 +10,5 @@ export type Vehicle = {
   fuelType: 'Essence' | 'Diesel' | 'Électrique' | 'Hybride';
   description: string;
   features: string[];
-  images: string[]; // This will now hold image URLs from Supabase
+  images: string[];
 };
