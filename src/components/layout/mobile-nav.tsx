@@ -32,6 +32,11 @@ export function MobileNav() {
               À Propos
             </Link>
           </li>
+          <li>
+            <Link href="/admin" className="text-lg font-medium hover:text-primary">
+              Ajouter voitures
+            </Link>
+          </li>
         </ul>
       </nav>
       <div className="mt-auto flex flex-col gap-4 border-t pt-4">
