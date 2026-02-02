@@ -1,16 +1,36 @@
 import { VehicleList } from '@/components/vehicles/vehicle-list';
 import type { Vehicle } from '@/lib/types';
-import { vehicles } from '@/lib/vehicle-data';
+import { supabase } from '@/lib/supabaseClient';
 
-function getVehicles() {
-  const allVehicles: Vehicle[] = [...vehicles].reverse();
-  const makes = [...new Set(allVehicles.map(v => v.make))];
-  return { vehicles: allVehicles, makes };
+async function getVehicles() {
+  const { data: allVehicles, error: vehiclesError } = await supabase
+    .from('vehicles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (vehiclesError) {
+    console.error('Supabase vehicles error:', vehiclesError);
+    throw new Error('Erreur de connexion à la base de données pour le catalogue. Assurez-vous que vos clés Supabase sont correctement configurées et que la table "vehicles" existe.');
+  }
+
+  const { data: makesData, error: makesError } = await supabase
+    .from('vehicles')
+    .select('make');
+
+  if (makesError) {
+    console.error('Supabase makes error:', makesError);
+    // This is less critical, we can maybe continue without makes
+    // For now, let's throw.
+    throw new Error('Erreur de connexion à la base de données pour les marques.');
+  }
+
+  const makes = [...new Set((makesData || []).map(v => v.make))];
+  return { vehicles: allVehicles || [], makes };
 }
 
 
-export default function VehiclesPage() {
-  const { vehicles, makes } = getVehicles();
+export default async function VehiclesPage() {
+  const { vehicles, makes } = await getVehicles();
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

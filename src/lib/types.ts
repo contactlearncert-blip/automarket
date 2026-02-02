@@ -1,5 +1,5 @@
 export type Vehicle = {
-  id: string;
+  id: number;
   make: string;
   model: string;
   year: number;
@@ -11,4 +11,5 @@ export type Vehicle = {
   description: string;
   features: string[];
   images: string[];
+  created_at: string;
 };

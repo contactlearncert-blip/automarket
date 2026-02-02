@@ -31,9 +31,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, Clipboard, Code } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { supabase } from '@/lib/supabaseClient';
 
 const ADMIN_PASSWORD = 'ZangaAuto';
 
@@ -56,9 +56,9 @@ const vehicleFormSchema = z.object({
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 
-function GenerateVehicleCodeForm() {
-  const [generatedCode, setGeneratedCode] = useState('');
+function AddVehicleForm() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
@@ -69,51 +69,44 @@ function GenerateVehicleCodeForm() {
       images: [{ url: '' }],
     },
   });
-  
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'images',
   });
 
-  function onSubmit(data: VehicleFormValues) {
-    const newId = Date.now().toString();
-    const vehicleObject = {
-      id: newId,
+  async function onSubmit(data: VehicleFormValues) {
+    setIsSubmitting(true);
+    const vehicleData = {
       ...data,
       features: data.features ? data.features.split(',').map(s => s.trim()).filter(Boolean) : [],
       images: data.images.map(img => img.url).filter(Boolean),
     };
-    
-    // Pretty print the object
-    const codeString = `{\n${Object.entries(vehicleObject).map(([key, value]) => {
-      let formattedValue;
-      if (key === 'id') {
-         formattedValue = `'${value}'`;
-      } else if (typeof value === 'string') {
-        formattedValue = `'${value.replace(/'/g, "\\'")}'`;
-      } else if (Array.isArray(value)) {
-        formattedValue = `[${value.map(v => `'${v.replace(/'/g, "\\'")}'`).join(', ')}]`;
-      } else {
-        formattedValue = value;
-      }
-      return `  ${key}: ${formattedValue}`;
-    }).join(',\n')}\n},`;
-    
-    setGeneratedCode(codeString);
-  }
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedCode);
-    toast({
-      title: 'Copié !',
-      description: 'Le code a été copié dans le presse-papiers.',
-    });
-  };
+    const { error } = await supabase.from('vehicles').insert([vehicleData]);
+    
+    setIsSubmitting(false);
+
+    if (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur lors de l\'ajout',
+        description: `Une erreur est survenue: ${error.message}`,
+      });
+    } else {
+      toast({
+        title: 'Véhicule ajouté !',
+        description: `${data.make} ${data.model} a été ajouté avec succès.`,
+      });
+      form.reset();
+      form.setValue('images', [{ url: '' }]);
+    }
+  }
 
   return (
     <>
       <p className="text-muted-foreground mb-6">
-        Remplissez ce formulaire pour générer le code du véhicule. Copiez ensuite ce code et collez-le dans le fichier <code>src/lib/vehicle-data.ts</code>.
+        Remplissez ce formulaire pour ajouter un nouveau véhicule directement au catalogue.
       </p>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -308,38 +301,16 @@ function GenerateVehicleCodeForm() {
             </FormMessage>
           </div>
 
-          <Button type="submit" className="w-full md:w-auto">
-            <Code className="mr-2 h-4 w-4" />
-            Générer le Code
+          <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+            {isSubmitting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <Server className="mr-2 h-4 w-4" />
+            )}
+            {isSubmitting ? 'Ajout en cours...' : 'Ajouter le véhicule'}
           </Button>
         </form>
       </Form>
-      {generatedCode && (
-          <div className="mt-8 space-y-4">
-            <Alert>
-              <AlertTitle className="flex items-center gap-2">
-                <Clipboard className="h-4 w-4" />
-                Code Généré
-              </AlertTitle>
-              <AlertDescription>
-                Copiez le code ci-dessous et collez-le dans le tableau `vehicles` du fichier <code>src/lib/vehicle-data.ts</code>.
-              </AlertDescription>
-            </Alert>
-            <div className="relative">
-              <pre className="bg-muted text-muted-foreground p-4 rounded-md overflow-x-auto text-sm">
-                {generatedCode}
-              </pre>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-7 w-7"
-                onClick={copyToClipboard}
-              >
-                <Clipboard className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
     </>
   );
 }
@@ -364,10 +335,10 @@ export default function AdminPage() {
       <div className="container mx-auto py-12 px-4">
         <Card className="max-w-4xl mx-auto">
           <CardHeader>
-            <CardTitle>Générer un nouveau véhicule</CardTitle>
+            <CardTitle>Ajouter un nouveau véhicule</CardTitle>
           </CardHeader>
           <CardContent>
-            <GenerateVehicleCodeForm />
+            <AddVehicleForm />
           </CardContent>
         </Card>
       </div>

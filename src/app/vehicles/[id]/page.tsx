@@ -7,12 +7,31 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { ContactSellerForm } from '@/components/vehicles/contact-seller-form';
 import { Cog, Fuel, Gauge, Calendar, DollarSign, Wrench } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
-import { vehicles } from '@/lib/vehicle-data';
+import { supabase } from '@/lib/supabaseClient';
 
 
-function getVehicle(id: string): Vehicle | null {
-    const vehicle = vehicles.find(v => v.id === id);
-    return vehicle || null;
+async function getVehicle(id: string): Promise<Vehicle | null> {
+    const vehicleId = parseInt(id, 10);
+    if (isNaN(vehicleId)) {
+        return null;
+    }
+
+    const { data, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('id', vehicleId)
+        .single();
+
+    if (error) {
+        // It's common for .single() to error if no row is found, which is a "not found" case.
+        if (error.code === 'PGRST116') {
+            return null;
+        }
+        console.error('Supabase error:', error);
+        throw new Error('Erreur de connexion à la base de données pour ce véhicule. Assurez-vous que vos clés Supabase sont correctement configurées.');
+    }
+
+    return data;
 }
 
 
@@ -22,8 +41,8 @@ type Spec = {
     value: string | number;
 }
 
-export default function VehicleDetailPage({ params }: { params: { id: string } }) {
-    const vehicle = getVehicle(params.id);
+export default async function VehicleDetailPage({ params }: { params: { id: string } }) {
+    const vehicle = await getVehicle(params.id);
 
     if (!vehicle) {
         notFound();
@@ -124,7 +143,14 @@ export default function VehicleDetailPage({ params }: { params: { id: string } }
 
 // Generate static paths for all vehicles
 export async function generateStaticParams() {
-  return vehicles.map((vehicle) => ({
-    id: vehicle.id,
+  const { data, error } = await supabase.from('vehicles').select('id');
+
+  if (error) {
+    console.error('Supabase error generating static params:', error);
+    return [];
+  }
+
+  return (data || []).map((vehicle) => ({
+    id: vehicle.id.toString(),
   }));
 }

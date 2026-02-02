@@ -7,18 +7,29 @@ import { ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FeaturedVehicleCard } from '@/components/vehicles/featured-vehicle-card';
 import type { Vehicle } from '@/lib/types';
-import { vehicles } from '@/lib/vehicle-data';
+import { supabase } from '@/lib/supabaseClient';
 
 
-function getFeaturedVehicles() {
-  const featuredVehicles: Vehicle[] = [...vehicles].reverse().slice(0, 3);
+async function getFeaturedVehicles() {
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  if (error) {
+    console.error('Supabase error:', error);
+    throw new Error('Erreur de connexion à la base de données pour les véhicules en vedette. Assurez-vous que vos clés Supabase sont correctement configurées dans le fichier .env et que la table "vehicles" existe.');
+  }
+  
+  const featuredVehicles: Vehicle[] = data || [];
   return { vehicles: featuredVehicles };
 }
 
 
-export default function Home() {
+export default async function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-showroom');
-  const { vehicles: featuredVehicles } = getFeaturedVehicles();
+  const { vehicles: featuredVehicles } = await getFeaturedVehicles();
 
   return (
     <>

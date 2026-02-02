@@ -1,4 +1,10 @@
-// Ce fichier n'est plus utilisé car l'application utilise désormais 
-// un fichier de données local (src/lib/vehicle-data.ts) au lieu d'une base de données.
-// Il est conservé pour référence mais peut être supprimé.
-export const supabase = null;
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Supabase URL and Anon Key are required.');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
