@@ -175,22 +175,177 @@ function AddVehicleForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="make" render={({ field }) => ( <FormItem> <FormLabel>Marque</FormLabel> <FormControl><Input placeholder="ex: Toyota" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
-            <FormField control={form.control} name="model" render={({ field }) => ( <FormItem> <FormLabel>Modèle</FormLabel> <FormControl><Input placeholder="ex: Camry" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+            <FormField
+              control={form.control}
+              name="make"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Marque</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ex: Toyota" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="model"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Modèle</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ex: Camry" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField control={form.control} name="year" render={({ field }) => ( <FormItem> <FormLabel>Année</FormLabel> <FormControl><Input type="number" placeholder="ex: 2023" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
-            <FormField control={form.control} name="price" render={({ field }) => ( <FormItem> <FormLabel>Prix (FCFA)</FormLabel> <FormControl><Input type="number" placeholder="ex: 15000000" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
-            <FormField control={form.control} name="mileage" render={({ field }) => ( <FormItem> <FormLabel>Kilométrage</FormLabel> <FormControl><Input type="number" placeholder="ex: 25000" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+            <FormField
+              control={form.control}
+              name="year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Année</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="ex: 2023" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Prix (FCFA)</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="ex: 15000000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mileage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kilométrage</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="ex: 25000" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <FormField control={form.control} name="engine" render={({ field }) => ( <FormItem> <FormLabel>Motorisation</FormLabel> <FormControl><Input placeholder="ex: 2.5L 4-Cyl" {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
+          <FormField
+            control={form.control}
+            name="engine"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Motorisation</FormLabel>
+                <FormControl>
+                  <Input placeholder="ex: 2.5L 4-Cyl" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField control={form.control} name="transmission" render={({ field }) => ( <FormItem> <FormLabel>Transmission</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl> <SelectTrigger><SelectValue placeholder="Sélectionner le type" /></SelectTrigger> </FormControl> <SelectContent> <SelectItem value="Automatique">Automatique</SelectItem> <SelectItem value="Manuelle">Manuelle</SelectItem> </SelectContent> </Select> <FormMessage /> </FormItem> )} />
-            <FormField control={form.control} name="fuelType" render={({ field }) => ( <FormItem> <FormLabel>Carburant</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl> <SelectTrigger><SelectValue placeholder="Sélectionner le type" /></SelectTrigger> </FormControl> <SelectContent> <SelectItem value="Essence">Essence</SelectItem> <SelectItem value="Diesel">Diesel</SelectItem> <SelectItem value="Hybride">Hybride</SelectItem> <SelectItem value="Électrique">Électrique</SelectItem> </SelectContent> </Select> <FormMessage /> </FormItem> )} />
+            <FormField
+              control={form.control}
+              name="transmission"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transmission</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner le type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Automatique">Automatique</SelectItem>
+                      <SelectItem value="Manuelle">Manuelle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="fuelType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Carburant</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner le type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Essence">Essence</SelectItem>
+                      <SelectItem value="Diesel">Diesel</SelectItem>
+                      <SelectItem value="Hybride">Hybride</SelectItem>
+                      <SelectItem value="Électrique">Électrique</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <FormField control={form.control} name="description" render={({ field }) => ( <FormItem> <FormLabel>Description</FormLabel> <FormControl><Textarea placeholder="Description détaillée du véhicule..." {...field} /></FormControl> <FormMessage /> </FormItem> )}/>
-          <FormField control={form.control} name="features" render={({ field }) => ( <FormItem> <FormLabel>Caractéristiques</FormLabel> <FormControl><Textarea placeholder="ex: Toit ouvrant, Sièges en cuir, GPS" {...field} /></FormControl> <FormDescription>Séparez chaque caractéristique par une virgule.</FormDescription> <FormMessage /> </FormItem> )}/>
-          <FormField control={form.control} name="images" render={({ field }) => ( <FormItem> <FormLabel>ID des images</FormLabel> <FormControl><Textarea placeholder="ex: sedan-1, sedan-1-gallery-1" {...field} /></FormControl> <FormDescription>Séparez chaque ID d'image (du fichier placeholder-images.json) par une virgule. Le premier sera l'image principale.</FormDescription> <FormMessage /> </FormItem> )}/>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Description détaillée du véhicule..." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="features"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Caractéristiques</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="ex: Toit ouvrant, Sièges en cuir, GPS" {...field} />
+                </FormControl>
+                <FormDescription>Séparez chaque caractéristique par une virgule.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>ID des images</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="ex: sedan-1, sedan-1-gallery-1" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Séparez chaque ID d'image (du fichier placeholder-images.json) par une virgule. Le
+                  premier sera l'image principale.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
           <Button type="submit" className="w-full md:w-auto">Générer le Code du Véhicule</Button>
         </form>
@@ -280,5 +435,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
